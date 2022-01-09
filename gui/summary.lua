@@ -30,7 +30,7 @@ local function add_event(event, summary)
   
   -- Total per origin surface
   summary.origins[event.origin_zone_name] = summary.origins[event.origin_zone_name] or
-      {zone_name=event.origin_zone_name, icon=event.origin_zone_icon, count=0, launchpads={}}
+      {zone_index=event.origin_zone_id, zone_name=event.origin_zone_name, icon=event.origin_zone_icon, count=0, launchpads={}}
   summary.origins[event.origin_zone_name].count = summary.origins[event.origin_zone_name].count + 1
   summary.origins[event.origin_zone_name].position = event.origin_position
   
@@ -43,7 +43,7 @@ local function add_event(event, summary)
   
   
   -- Total per target surface
-  summary.targets[event.target_zone_name] = summary.targets[event.target_zone_name] or {zone_name=event.target_zone_name, count=0, icon=event.target_zone_icon, landingpads={}, area_count=0}
+  summary.targets[event.target_zone_name] = summary.targets[event.target_zone_name] or {zone_index=event.target_zone_id, zone_name=event.target_zone_name, count=0, icon=event.target_zone_icon, landingpads={}, area_count=0}
   summary.targets[event.target_zone_name].count = summary.targets[event.target_zone_name].count + 1
   summary.targets[event.target_zone_name].position = event.target_position
   
@@ -120,7 +120,7 @@ local function create_gui(summary, gui_id)
         sprite = origin.icon,
         tooltip = origin.zone_name,
         actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "zone", value = origin.zone_name, gui_id = gui_id }
+          on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = origin.zone_index, gui_id = gui_id }
         }
       },
       name = {
@@ -163,7 +163,7 @@ local function create_gui(summary, gui_id)
         sprite = target.icon,
         tooltip = target.zone_name,
         actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "zone", value = target.zone_name, gui_id = gui_id }
+          on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = target.zone_index, gui_id = gui_id }
         }
       },
       name = {

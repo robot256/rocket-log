@@ -24,18 +24,37 @@ local function handle_action(action, event)
       rocket_log_gui.gui.filter.item.elem_value = action.value
       action.action = "apply-filter"
     end
-    if action.filter == "zone" then
+    if action.filter == "zone_index" then
+      rocket_log_gui.gui.filter.zone_index.text = (action.value and tostring(action.value)) or ""
+      action.action = "apply-filter"
+    end
+    if action.filter == "zone_name" then
       rocket_log_gui.gui.filter.zone_name.text = action.value
       action.action = "apply-filter"
     end
   end
   if action.action == "apply-filter" then
+    -- Validate the zone index selection
+    if rocket_log_gui.gui.filter.zone_index.text ~= "" then
+      local zone_index = tonumber(rocket_log_gui.gui.filter.zone_index.text)
+      local zone = remote.call("space-exploration", "get_zone_from_zone_index", {zone_index = zone_index})
+      if zone then
+        -- Update name field to match if the zone is good
+        rocket_log_gui.gui.filter.zone_name.text = zone.name
+        rocket_log_gui.gui.filter.zone_icon.sprite = remote.call("space-exploration", "get_zone_icon", {zone_index = zone_index})
+      else
+        filter_guis.zone_index.text = ""
+        rocket_log_gui.gui.filter.zone_icon.sprite = "utility/missing_icon"
+      end
+    end
     refresh(action.gui_id)
   end
   if action.action == "clear-filter" then
     local filter_guis = rocket_log_gui.gui.filter
     filter_guis.zone_name.text = ""
     filter_guis.item.elem_value = nil
+    filter_guis.zone_index.text = ""
+    rocket_log_gui.gui.filter.zone_icon.sprite = "utility/missing_icon"
     refresh(action.gui_id)
   end
 end
@@ -63,8 +82,9 @@ local function create_toolbar(gui_id)
             }
           },
           {
-            type = "button",
-            caption = { "rocket-log.refresh" },
+            type = "sprite-button",
+            sprite = "utility/refresh",
+            style = "item_and_count_select_confirm",
             tooltip = { "rocket-log.refresh" },
             actions = {
               on_click = { type = "toolbar", action = "refresh", gui_id = gui_id }
@@ -85,58 +105,67 @@ local function create_toolbar(gui_id)
         direction = "horizontal",
         children = {
           {
-            type = "flow",
-            direction = "vertical",
-            children = {
-                {
-                  type = "label",
-                  caption = { "rocket-log.filter-zone-name" }
-                },
-                {
-                  type = "textfield",
-                  tooltip = { "rocket-log.filter-zone-name" },
-                  ref = { "filter", "zone_name" },
-                  actions = {
-                    on_confirmed = {
-                        type = "toolbar", action = "apply-filter", gui_id = gui_id,
-                        filter = "zone_name"
-                    }
-                  }
-                }
+            type = "label",
+            caption = { "rocket-log.filter-zone-label" }
+          },
+          {
+            type = "sprite-button",
+            sprite = "utility/missing_icon",
+            tooltip = { "rocket-log.filter-zone-icon-tooltip" },
+            ref = { "filter", "zone_icon" },
+            actions = {
+              on_click = { type = "toolbar", action = "select-zone", gui_id = gui_id }
             }
           },
           {
-            type = "flow",
-            direction = "horizontal",
-            children = {
-              {
-                type = "label",
-                caption = { "rocket-log.filter-item-label" }
-              },
-              {
-                type = "choose-elem-button",
-                elem_type = "item",
-                tooltip = { "rocket-log.filter-item-tooltip" },
-                ref = { "filter", "item" },
-                actions = {
-                  on_elem_changed = {
-                      type = "toolbar", action = "apply-filter", gui_id = gui_id,
-                      filter = "item"
-                  }
-                }
-              },
-              {
-                type = "button",
-                caption = { "rocket-log.filter-clear" },
-                tooltip = { "rocket-log.filter-clear" },
-                actions = {
-                  on_click = { type = "toolbar", action = "clear-filter", gui_id = gui_id }
-                }
+            type = "textfield",
+            tooltip = { "rocket-log.filter-zone-index-tooltip" },
+            numeric = true,
+            style = "very_short_number_textfield",
+            ref = { "filter", "zone_index" },
+            actions = {
+              on_confirmed = {
+                  type = "toolbar", action = "apply-filter", gui_id = gui_id
               }
+            }
+          },
+          {
+            type = "textfield",
+            tooltip = { "rocket-log.filter-zone-text-tooltip" },
+            ref = { "filter", "zone_name" },
+            actions = {
+              on_confirmed = {
+                  type = "toolbar", action = "apply-filter", gui_id = gui_id
+              }
+            }
+          },
+          {
+            type = "label",
+            caption = { "rocket-log.filter-item-label" }
+          },
+          {
+            type = "choose-elem-button",
+            elem_type = "item",
+            tooltip = { "rocket-log.filter-item-tooltip" },
+            ref = { "filter", "item" },
+            actions = {
+              on_elem_changed = {
+                  type = "toolbar", action = "apply-filter", gui_id = gui_id
+              }
+            }
+          },
+          {
+            type = "sprite-button",
+            sprite = "se-search-close-white",
+            hovered_sprite = "se-search-close-black",
+            clicked_sprite="se-search-close-black",
+            tooltip = { "rocket-log.filter-clear" },
+            actions = {
+              on_click = { type = "toolbar", action = "clear-filter", gui_id = gui_id }
             }
           }
         }
-      },
+      }
     }
   }
 end

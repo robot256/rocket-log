@@ -12,7 +12,6 @@ end
 
 data:extend {
   create_sprite_icon("crosshairs-gps", nil, 1.5),
-  create_sprite_icon("train"),
   create_sprite_icon("timer-outline"),
   create_sprite_icon("rocket-button", 64, 0.5625, "__space-exploration-graphics__/graphics/icons/cargo-rocket.png")
 }
@@ -21,7 +20,7 @@ data:extend {
   {
       type = 'custom-input',
       name = 'rocket-log-open',
-      key_sequence = 'CONTROL + R',
+      key_sequence = 'CONTROL + Y',
       enabled_while_spectating = true,
   },
 }
