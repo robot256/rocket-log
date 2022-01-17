@@ -120,7 +120,7 @@ local function create_gui(summary, gui_id)
         sprite = origin.icon,
         tooltip = origin.zone_name,
         actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = origin.zone_index, gui_id = gui_id }
+          on_click = { type = "toolbar", action = "filter", filter = "origin", value = origin.zone_name, gui_id = gui_id }
         }
       },
       name = {
@@ -163,7 +163,7 @@ local function create_gui(summary, gui_id)
         sprite = target.icon,
         tooltip = target.zone_name,
         actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = target.zone_index, gui_id = gui_id }
+          on_click = { type = "toolbar", action = "filter", filter = "target", value = target.zone_name, gui_id = gui_id }
         }
       },
       name = {

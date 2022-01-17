@@ -65,7 +65,7 @@ local function events_row(rocket_data, children, gui_id)
       sprite = rocket_data.origin_zone_icon,
       tooltip = {"rocket-log.origin-name", rocket_data.origin_zone_name},
       actions = {
-        on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = rocket_data.origin_zone_id, gui_id = gui_id }
+        on_click = { type = "toolbar", action = "filter", filter = "origin", value = rocket_data.origin_zone_name, gui_id = gui_id }
       }
     },
   -- Launchpad icon button
@@ -94,7 +94,7 @@ local function events_row(rocket_data, children, gui_id)
       sprite = rocket_data.target_zone_icon,
       tooltip = {"rocket-log.target-name", rocket_data.target_zone_name},
       actions = {
-        on_click = { type = "toolbar", action = "filter", filter = "zone_index", value = rocket_data.target_zone_id, gui_id = gui_id }
+        on_click = { type = "toolbar", action = "filter", filter = "target", value = rocket_data.target_zone_name, gui_id = gui_id }
       }
     }
   }
@@ -171,11 +171,11 @@ local function matches_filter(result, filters)
   end
 
   local check_item = filters.item ~= nil
-  local check_index = filters.zone_index ~= nil
-  local check_zone = (not check_index) and (filters.zone_name ~= "")  -- Index takes priority
+  local check_origin = filters.origin_index ~= nil
+  local check_target = filters.target_index ~= nil
   local matches_item = not check_item
-  local matches_index = not check_index
-  local matches_zone = not check_zone
+  local matches_origin = not check_origin
+  local matches_target = not check_target
   
   if check_item then
     if not matches_item and result.contents then
@@ -183,24 +183,15 @@ local function matches_filter(result, filters)
     end
   end
   
-  if check_index then
-    matches_index = (result.origin_zone_id == filters.zone_index) or
-                    (result.target_zone_id == filters.zone_index)
-  
-  elseif check_zone then
-    local zone_name = result.origin_zone_name
-    if zone_name:lower():find(filters.zone_name) then
-      matches_zone = true
-    end
-    if not matches_zone then
-      zone_name = result.target_zone_name
-      if zone_name:lower():find(filters.zone_name) then
-        matches_zone = true
-      end
-    end
+  if check_origin then
+    matches_origin = (result.origin_zone_id == filters.origin_index)
   end
   
-  return matches_item and matches_index and matches_zone
+  if check_target then
+    matches_target = (result.target_zone_id == filters.target_index)
+  end
+  
+  return matches_item and matches_origin and matches_target
 end
 
 local function iterate_backwards_iterator(tbl, i)
@@ -234,20 +225,38 @@ end
 local function create_events_table(gui_id)
   -- Loop through all the histories first and then check current, sort by the tick of last entry
   local rocket_log_gui = global.guis[gui_id]
+  local force_index = rocket_log_gui.player.force.index
   local histories = {}
   for _, record in pairs(global.history) do
-    if record.force_index == rocket_log_gui.player.force.index then
+    if record.force_index == force_index then
       table.insert(histories, record)
     end
   end
 
   table.sort(histories, function(a, b) return a.launch_time < b.launch_time end)
-
+  
+  local filter_guis = rocket_log_gui.gui.filter
+  
+  local origin_index
+  local target_index
+  if filter_guis.origin_list.selected_index > 1 then
+    local origin_name = filter_guis.origin_list.get_item(filter_guis.origin_list.selected_index)
+    origin_name = string.gsub(origin_name, "^(%[.*%] )", "")
+    local origin_zone = remote.call("space-exploration", "get_zone_from_name", {zone_name=origin_name})
+    origin_index = origin_zone.index
+  end
+  if filter_guis.target_list.selected_index > 1 then
+    local target_name = filter_guis.target_list.get_item(filter_guis.target_list.selected_index)
+    target_name = string.gsub(target_name, "^(%[.*%] )", "")
+    local target_zone = remote.call("space-exploration", "get_zone_from_name", {zone_name=target_name})
+    target_index = target_zone.index
+  end
+  
   local filters = {
-    item = rocket_log_gui.gui.filter.item.elem_value,
-    zone_index = tonumber(rocket_log_gui.gui.filter.zone_index.text),
-    zone_name = rocket_log_gui.gui.filter.zone_name.text:lower(),
-    time_period = game.tick - time_filter.ticks(rocket_log_gui.gui.filter.time_period.selected_index)
+    item = filter_guis.item.elem_value,
+    origin_index = origin_index,
+    target_index = target_index,
+    time_period = game.tick - time_filter.ticks(filter_guis.time_period.selected_index)
   }
 
   local events_columns =  { "timestamp", "origin", "target", "contents" }
@@ -289,6 +298,7 @@ local function create_events_table(gui_id)
           ref = { "events_table" },
           column_count = #events_columns,
           draw_vertical_lines = true,
+          draw_horizontal_line_after_headers = true,
           children = children_guis
         }
       }
