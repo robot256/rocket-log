@@ -7,15 +7,22 @@ require("gui/mod_gui_button")
 events.on_init(function()
     global.guis = {}
     global.history = {}
-    global.rockets = {}
     init_events()
 end)
+
 events.on_load(init_events)
-events.on_configuration_changed(init_events)
+
+events.on_configuration_changed(function()
+    init_events()
+    rocket_log_gui.kill_all_guis()
+end)
 
 events.register("rocket-log-open", function(event)
 	rocket_log_gui.open_or_close_gui(game.players[event.player_index])
 end)
+
+commands.add_command("rocketlogmigrate", nil, rocket_log_gui.kill_all_guis)
+
 
 
 ------------------------------------------------------------------------------------

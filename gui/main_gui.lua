@@ -103,6 +103,14 @@ local function open_or_close_gui(player, always_open)
   end
 end
 
+-- Close all player GUIs so they can be recreated (for migrations)
+local function kill_all_guis()
+  for gui_id, gui_data in pairs(global.guis) do
+    gui_data.gui.window.destroy()
+  end
+  global.guis = {}
+end
+
 local function handle_action(action, event)
   if action.action == "close-window" then
       destroy_gui(action.gui_id)
@@ -128,5 +136,6 @@ end)
 
 return {
   open_or_close_gui = open_or_close_gui,
-  open = open_gui
+  open = open_gui,
+  kill_all_guis = kill_all_guis
 }

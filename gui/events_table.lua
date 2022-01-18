@@ -58,16 +58,7 @@ local function events_row(rocket_data, children, gui_id)
     caption = misc.ticks_to_timestring(launch_time, true)
   }
 
-  -- Launch event origin zone
   local origin_children = {
-    {
-      type = "sprite-button",
-      sprite = rocket_data.origin_zone_icon,
-      tooltip = {"rocket-log.origin-name", rocket_data.origin_zone_name},
-      actions = {
-        on_click = { type = "toolbar", action = "filter", filter = "origin", value = rocket_data.origin_zone_name, gui_id = gui_id }
-      }
-    },
   -- Launchpad icon button
     {
       type = "sprite-button",
@@ -79,7 +70,18 @@ local function events_row(rocket_data, children, gui_id)
             position = rocket_data.launchpad.position
         },
       }
-    }
+    },
+  -- Launch event origin zone
+    {
+      type = "button",
+      caption = {"rocket-log.origin-label", rocket_data.origin_zone_name, rocket_data.origin_zone_icon},
+      tooltip = {"rocket-log.origin-tooltip", rocket_data.origin_zone_name},
+      style = "frame_button",
+      style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
+      actions = {
+        on_click = { type = "toolbar", action = "filter", filter = "origin", value = rocket_data.origin_zone_name, gui_id = gui_id }
+      }
+    },
   }
   local origin_flow = {
     type = "flow",
@@ -90,9 +92,11 @@ local function events_row(rocket_data, children, gui_id)
   -- Launch event target zone
   local target_children = {
     {
-      type = "sprite-button",
-      sprite = rocket_data.target_zone_icon,
-      tooltip = {"rocket-log.target-name", rocket_data.target_zone_name},
+      type = "button",
+      caption = {"rocket-log.target-label", rocket_data.target_zone_name, rocket_data.target_zone_icon},
+      tooltip = {"rocket-log.target-tooltip", rocket_data.target_zone_name},
+      style = "frame_button",
+      style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
       actions = {
         on_click = { type = "toolbar", action = "filter", filter = "target", value = rocket_data.target_zone_name, gui_id = gui_id }
       }
@@ -102,7 +106,7 @@ local function events_row(rocket_data, children, gui_id)
   -- Landing pad target
   if rocket_data.landingpad_name then
     if rocket_data.landingpad and rocket_data.landingpad.valid then
-      table.insert(target_children, {
+      table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "entity/se-rocket-landing-pad",
         tooltip = {"rocket-log.landing-pad-name", rocket_data.landingpad_name},
@@ -114,7 +118,7 @@ local function events_row(rocket_data, children, gui_id)
         }
       })
     else
-      table.insert(target_children, {
+      table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "rocket_log_crosshairs-gps",
         tooltip = {"rocket-log.missing-landingpad"},
@@ -127,7 +131,7 @@ local function events_row(rocket_data, children, gui_id)
       })
     end
   else
-    table.insert(target_children, {
+    table.insert(target_children, 1, {
       type = "sprite-button",
       sprite = "rocket_log_crosshairs-gps",
       tooltip = {"rocket-log.no-landingpad"},
@@ -274,7 +278,7 @@ local function create_events_table(gui_id)
       style = "flib_naked_scroll_pane_no_padding",
       ref = { "scroll_pane" },
       vertical_scroll_policy = "always",
-      style_mods = {width = 650, height = 400, padding = 6},
+      style_mods = {width = 1000, height = 600, padding = 6},
       children = {
         {
           type = "flow",
@@ -291,7 +295,7 @@ local function create_events_table(gui_id)
       style = "flib_naked_scroll_pane_no_padding",
       ref = { "scroll_pane" },
       vertical_scroll_policy = "always",
-      style_mods = {width = 650, height = 400, padding = 6},
+      style_mods = {width = 1000, height = 600, padding = 6},
       children = {
         {
           type = "table",
@@ -299,6 +303,8 @@ local function create_events_table(gui_id)
           column_count = #events_columns,
           draw_vertical_lines = true,
           draw_horizontal_line_after_headers = true,
+          vertical_centering = true,
+          style_mods = {right_cell_padding = 3, left_cell_padding = 3},
           children = children_guis
         }
       }

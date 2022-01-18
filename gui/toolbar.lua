@@ -166,8 +166,9 @@ local function create_toolbar(gui_id)
         direction = "horizontal",
         children = {
           {
-            type = "label",
-            caption = { "rocket-log.filter-time-period-label" }
+            type = "sprite",
+            sprite = "rocket_log_timer-outline",
+            tooltip = { "rocket-log.filter-time-period-label" }
           },
           {
             type = "drop-down",

@@ -12,7 +12,7 @@ end
 
 data:extend {
   create_sprite_icon("crosshairs-gps", nil, 1.5),
-  create_sprite_icon("timer-outline"),
+  create_sprite_icon("timer-outline", nil, 1.3),
   create_sprite_icon("rocket-button", 64, 0.5625, "__space-exploration-graphics__/graphics/icons/cargo-rocket.png")
 }
 
