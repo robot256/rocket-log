@@ -10,7 +10,7 @@ local function add_mod_gui_button(player)
         type = "sprite-button",
         name = "rocket_log",
         style = "slot_button",
-        sprite = "rocket_log_rocket-button",
+        sprite = "rocket-log-gui-button",
         tags = {
             [script.mod_name] = {
                 flib = {

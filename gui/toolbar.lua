@@ -167,13 +167,13 @@ local function create_toolbar(gui_id)
         children = {
           {
             type = "sprite",
-            sprite = "rocket_log_timer-outline",
-            tooltip = { "rocket-log.filter-time-period-label" }
+            sprite = "rocket-log-clock-white",
           },
           {
             type = "drop-down",
             items = time_filter.time_period_items,
             selected_index = time_filter.default_index,
+            tooltip = { "rocket-log.filter-time-period-label" },
             ref = { "filter", "time_period" },
             actions = {
               on_selection_state_changed = { type = "toolbar", action = "refresh", gui_id = gui_id }

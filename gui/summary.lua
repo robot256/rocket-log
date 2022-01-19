@@ -36,7 +36,7 @@ local function add_event(event, summary)
   
   -- Total per launchpad
   local launchpad_summary = summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] or
-      {name=event.origin_zone_name, launchpad_id=event.launchpad_id, icon="entity/se-rocket-launch-pad", zone_name=event.origin_zone_name, count=0}
+      {name=event.origin_zone_name, launchpad_id=event.launchpad_id, icon="rocket-log-launchpad-gps", zone_name=event.origin_zone_name, count=0}
   launchpad_summary.count = launchpad_summary.count + 1
   launchpad_summary.position = event.origin_position
   summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] = launchpad_summary
@@ -50,13 +50,13 @@ local function add_event(event, summary)
   -- Total per landingpad or area
   if event.landingpad_name then
     local landingpad_summary = summary.targets[event.target_zone_name].landingpads[event.landingpad_name] or 
-        {name=event.landingpad_name, icon="entity/se-rocket-landing-pad", zone_name=event.target_zone_name, count=0}
+        {name=event.landingpad_name, icon="rocket-log-landingpad-gps", zone_name=event.target_zone_name, count=0}
     landingpad_summary.count = landingpad_summary.count + 1
     landingpad_summary.position = event.target_position
     summary.targets[event.target_zone_name].landingpads[event.landingpad_name] = landingpad_summary
   else
     local landingpad_summary = summary.targets[event.target_zone_name].landingpads["__area__"] or 
-        {name={"rocket-log.no-landingpad"}, icon="rocket_log_crosshairs-gps", zone_name=event.target_zone_name, count=0}
+        {name={"rocket-log.no-landingpad"}, zone_name=event.target_zone_name, count=0}
     landingpad_summary.count = landingpad_summary.count + 1
     landingpad_summary.position = event.target_position
     summary.targets[event.target_zone_name].landingpads["__area__"] = landingpad_summary
@@ -115,17 +115,14 @@ local function create_gui(summary, gui_id)
         type = "label",
         caption = tostring(origin.count)
       },
-      icon = {
-        type = "sprite-button",
-        sprite = origin.icon,
-        tooltip = origin.zone_name,
+      surface = {
+        type = "button",
+        caption = {"rocket-log.origin-label", origin.zone_name, origin.icon},
+        style = "frame_button",
+        style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
         actions = {
           on_click = { type = "toolbar", action = "filter", filter = "origin", value = origin.zone_name, gui_id = gui_id }
         }
-      },
-      name = {
-        type = "label",
-        caption = origin.zone_name
       },
       launchpads = {
         type = "flow",
@@ -142,7 +139,9 @@ local function create_gui(summary, gui_id)
       table.insert(landingpad_children, 
         {
           type = "sprite-button",
-          sprite = landingpad.icon,
+          sprite = landingpad.icon or "rocket-log-crosshairs-gps-white",
+          hovered_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
+          clicked_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
           tooltip = {"rocket-log.summary-item-tooltip", landingpad.name, tostring(landingpad.count)},
           actions = {
             on_click = { type = "table", action = "remote-view", 
@@ -158,17 +157,14 @@ local function create_gui(summary, gui_id)
         type = "label",
         caption = tostring(target.count)
       },
-      icon = {
-        type = "sprite-button",
-        sprite = target.icon,
-        tooltip = target.zone_name,
+      surface = {
+        type = "button",
+        caption = {"rocket-log.target-label", target.zone_name, target.icon},
+        style = "frame_button",
+        style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
         actions = {
           on_click = { type = "toolbar", action = "filter", filter = "target", value = target.zone_name, gui_id = gui_id }
         }
-      },
-      name = {
-        type = "label",
-        caption = target.zone_name
       },
       landingpads = {
         type = "flow",
@@ -204,9 +200,9 @@ local function create_gui(summary, gui_id)
     },
     {
       type = "table",
-      column_count = 4,
+      column_count = 3,
       children = flat_map(origins_top, function(v)
-          return { v.count, v.icon, v.name, v.launchpads }
+          return { v.count, v.surface, v.launchpads }
       end)
     },
     {
@@ -215,9 +211,9 @@ local function create_gui(summary, gui_id)
     },
     {
       type = "table",
-      column_count = 4,
+      column_count = 3,
       children = flat_map(targets_top, function(v)
-          return { v.count, v.icon, v.name, v.landingpads}
+          return { v.count, v.surface, v.landingpads}
       end)
     },
     {

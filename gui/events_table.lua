@@ -62,8 +62,8 @@ local function events_row(rocket_data, children, gui_id)
   -- Launchpad icon button
     {
       type = "sprite-button",
-      sprite = "entity/se-rocket-launch-pad",
-      tooltip = {"entity-name.se-rocket-launch-pad"},
+      sprite = "rocket-log-launchpad-gps",
+      --tooltip = {"entity-name.se-rocket-launch-pad"},
       actions = {
         on_click = { type = "table", action = "remote-view", 
             zone_name = rocket_data.origin_zone_name,
@@ -75,7 +75,7 @@ local function events_row(rocket_data, children, gui_id)
     {
       type = "button",
       caption = {"rocket-log.origin-label", rocket_data.origin_zone_name, rocket_data.origin_zone_icon},
-      tooltip = {"rocket-log.origin-tooltip", rocket_data.origin_zone_name},
+      --tooltip = {"rocket-log.origin-tooltip", rocket_data.origin_zone_name},
       style = "frame_button",
       style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
       actions = {
@@ -94,7 +94,7 @@ local function events_row(rocket_data, children, gui_id)
     {
       type = "button",
       caption = {"rocket-log.target-label", rocket_data.target_zone_name, rocket_data.target_zone_icon},
-      tooltip = {"rocket-log.target-tooltip", rocket_data.target_zone_name},
+      --tooltip = {"rocket-log.target-tooltip", rocket_data.target_zone_name},
       style = "frame_button",
       style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
       actions = {
@@ -108,7 +108,7 @@ local function events_row(rocket_data, children, gui_id)
     if rocket_data.landingpad and rocket_data.landingpad.valid then
       table.insert(target_children, 1, {
         type = "sprite-button",
-        sprite = "entity/se-rocket-landing-pad",
+        sprite = "rocket-log-landingpad-gps",
         tooltip = {"rocket-log.landing-pad-name", rocket_data.landingpad_name},
         actions = {
             on_click = { type = "table", action = "remote-view",
@@ -120,7 +120,9 @@ local function events_row(rocket_data, children, gui_id)
     else
       table.insert(target_children, 1, {
         type = "sprite-button",
-        sprite = "rocket_log_crosshairs-gps",
+        sprite = "rocket-log-crosshairs-gps-white",
+        hovered_sprite = "rocket-log-crosshairs-gps",
+        clicked_sprite = "rocket-log-crosshairs-gps",
         tooltip = {"rocket-log.missing-landingpad"},
         actions = {
             on_click = { type = "table", action = "remote-view",
@@ -133,7 +135,9 @@ local function events_row(rocket_data, children, gui_id)
   else
     table.insert(target_children, 1, {
       type = "sprite-button",
-      sprite = "rocket_log_crosshairs-gps",
+      sprite = "rocket-log-crosshairs-gps-white",
+      hovered_sprite = "rocket-log-crosshairs-gps",
+      clicked_sprite = "rocket-log-crosshairs-gps",
       tooltip = {"rocket-log.no-landingpad"},
       actions = {
           on_click = { type = "table", action = "remote-view",
