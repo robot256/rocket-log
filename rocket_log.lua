@@ -14,7 +14,7 @@ end
 
 
 function OnRocketLaunched(event)
-  game.print("Handling rocket launched event")
+  --game.print("Handling rocket launched event")
   --game.write_file("launchpad_structs.txt", tostring(game.tick).." LAUNCH:\n" .. serpent.block(event), true)
   local log_data = {
     launch_time = event.tick,
