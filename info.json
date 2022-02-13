@@ -9,6 +9,6 @@
   "description": "Keep a record of all Space Exploration cargo rocket flights.  Based on Train Log by Zomis.",
   "dependencies": [
 		"flib >= 0.8.2",
-		"space-exploration"
+		"space-exploration >= 0.5.104"
 	]
 }

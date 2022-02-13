@@ -15,23 +15,23 @@ end
 
 function OnRocketLaunched(event)
   game.print("Handling rocket launched event")
-  local struct = event.struct
+  --game.write_file("launchpad_structs.txt", tostring(game.tick).." LAUNCH:\n" .. serpent.block(event), true)
   local log_data = {
-    launch_time = game.tick,
-    force_index = struct.container.force.index,
-    launchpad_id = struct.unit_number,
-    launchpad = struct.container,
-    origin_zone_id = struct.zone.index,
-    origin_zone_name = struct.zone.name,
-    origin_zone_icon = remote.call("space-exploration", "get_zone_icon", {zone_index = struct.zone.index}),
-    origin_position = struct.container.position,
-    contents = util.table.deepcopy(struct.launched_contents),
-    target_zone_id = struct.destination.zone.index,
-    target_zone_name = struct.destination.zone.name,
-    target_zone_icon = remote.call("space-exploration", "get_zone_icon", {zone_index = struct.destination.zone.index}),
-    target_position = struct.launching_to_destination.position,
-    landingpad_name = struct.launching_to_destination.landing_pad_name,  -- Nil if launching to general area
-    landingpad = struct.launching_to_destination.landing_pad and struct.launching_to_destination.landing_pad.container,
+    launch_time = event.tick,
+    force_index = game.forces[event.force_name].index,
+    launchpad_id = event.unit_number,
+    launchpad = event.launchpad,
+    origin_zone_id = event.zone_index,
+    origin_zone_name = event.zone_name,
+    origin_zone_icon = remote.call("space-exploration", "get_zone_icon", {zone_index = event.zone_index}),
+    origin_position = event.launchpad.position,
+    contents = util.table.deepcopy(event.launched_contents),
+    target_zone_id = event.destination_zone_index,
+    target_zone_name = event.destination_zone_name,
+    target_zone_icon = event.destination_zone_index and remote.call("space-exploration", "get_zone_icon", {zone_index = event.destination_zone_index}),
+    target_position = event.destination_position,
+    landingpad_name = event.landing_pad_name,  -- Nil if launching to general area
+    landingpad = event.landing_pad,  -- Nil if launching to general area
     launch_trigger = nil,
     launched_players = {},
     landing_failed = nil,
