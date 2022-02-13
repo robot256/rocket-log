@@ -1,6 +1,6 @@
 local events_table = require("gui/events_table")
-local time_filter = require("filter-time")
-local rocket_log = require("rocket_log")
+local time_filter = require("scripts/filter-time")
+local rocket_log = require("scripts/rocket_log")
 
 -- Navigate recursively to find the star system this zone is in
 --local get_star_name(zone)

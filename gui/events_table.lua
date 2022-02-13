@@ -1,7 +1,7 @@
 local misc = require("__flib__.misc")
 local gui = require("__flib__.gui-beta")
 local trains = require("__flib__.train")
-local time_filter = require("filter-time")
+local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
 
 

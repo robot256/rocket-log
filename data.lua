@@ -3,7 +3,7 @@ local function create_sprite_icon(name, size, scale, path, tint)
   return {
     type = "sprite",
     name = "rocket-log-" .. name,
-    filename = path or "__rocket-log__/graphics/icons/material-design/" .. name .. ".png",
+    filename = path or "__rocket-log__/graphics/icons/" .. name .. ".png",
     priority = "medium",
     size = size or 24,
     scale = scale or 1,
@@ -30,7 +30,7 @@ local function create_sprite_gps_overlay(name, source, tint)
         scale = 1,
       },
       {
-        filename = "__rocket-log__/graphics/icons/material-design/crosshairs-gps-white.png",
+        filename = "__rocket-log__/graphics/icons/crosshairs-gps-white.png",
         priority = "high",
         size = 22,
         position = {1,1},

@@ -1,7 +1,7 @@
 local events = require("__flib__.event")
 
 rocket_log_gui = require("gui/main_gui")
-require("rocket_log")
+require("scripts/rocket_log")
 rocket_gui_button = require("gui/mod_gui_button")
 
 events.on_init(function()

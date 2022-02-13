@@ -111,6 +111,14 @@ local function kill_all_guis()
   global.guis = {}
 end
 
+local function refresh_all_guis()
+  for gui_id, gui_data in pairs(global.guis) do
+    if gui_data.gui.visible then
+      toolbar.refresh(gui_id)
+    end
+  end
+end
+
 local function handle_action(action, event)
   if action.action == "close-window" then
       destroy_gui(action.gui_id)
@@ -137,5 +145,6 @@ end)
 return {
   open_or_close_gui = open_or_close_gui,
   open = open_gui,
-  kill_all_guis = kill_all_guis
+  kill_all_guis = kill_all_guis,
+  refresh_all_guis = refresh_all_guis
 }
