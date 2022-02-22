@@ -100,9 +100,9 @@ local function create_gui(summary, gui_id)
         {
           type = "sprite-button",
           sprite = launchpad.icon,
-          tooltip = {"rocket-log.summary-item-tooltip", launchpad.name.." #"..tostring(launchpad.launchpad_id), tostring(launchpad.count)},
+          tooltip = {"rocket-log.summary-launchpad-tooltip", launchpad.name, tostring(launchpad.launchpad_id), tostring(launchpad.count), {"control-keys.mouse-button-2-alt-1"}},
           actions = {
-            on_click = { type = "table", action = "remote-view", 
+            on_click = { type = "table", action = "container-gui", 
               zone_name = launchpad.zone_name,
               position = launchpad.position
             }
@@ -136,15 +136,21 @@ local function create_gui(summary, gui_id)
   local _, targets_top = tables.for_n_of(targets, nil, 10, function(target)
     local landingpad_children = {}
     for _, landingpad in pairs(target.landingpads) do
+      local pad_tooltip
+      if landingpad.icon then
+        pad_tooltip = {"rocket-log.summary-landingpad-tooltip", landingpad.name, tostring(landingpad.count), {"control-keys.mouse-button-2-alt-1"}}
+      else
+        pad_tooltip = {"rocket-log.summary-area-tooltip", tostring(landingpad.count)}
+      end
       table.insert(landingpad_children, 
         {
           type = "sprite-button",
           sprite = landingpad.icon or "rocket-log-crosshairs-gps-white",
           hovered_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
           clicked_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
-          tooltip = {"rocket-log.summary-item-tooltip", landingpad.name, tostring(landingpad.count)},
+          tooltip = pad_tooltip,
           actions = {
-            on_click = { type = "table", action = "remote-view", 
+            on_click = { type = "table", action = "container-gui", 
               zone_name = landingpad.zone_name,
               position = landingpad.position
             }

@@ -72,34 +72,41 @@ local function open_gui(player)
     }
   end
   local rocket_log_gui = global.guis[gui_id].gui
+  if player.opened and player.opened ~= rocket_log_gui.window then
+    player.opened = nil
+  end
   toolbar.refresh(gui_id)
   rocket_log_gui.window.visible = true
   rocket_log_gui.titlebar.drag_target = rocket_log_gui.window
   rocket_log_gui.window.force_auto_center()
+  player.opened = rocket_log_gui.window
   events_table.create_events_table(gui_id)
+  
 end
 
 local function destroy_gui(gui_id)
-  local rocket_log_gui = global.guis[gui_id].gui
-  rocket_log_gui.window.visible = false
-  --global.guis[gui_id] = nil
+  if global.guis[gui_id] then
+    local rocket_log_gui = global.guis[gui_id].gui
+    rocket_log_gui.window.visible = false
+    global.guis[gui_id].player.opened = nil
+    --global.guis[gui_id] = nil
+  end
+end
+
+local function close_gui(player)
+  local gui_id = "gui-" .. player.name
+  -- Ignore close requests if we are not already open
+  if global.guis[gui_id] and global.guis[gui_id].gui.window.visible then
+    destroy_gui(gui_id)
+  end
 end
 
 local function open_or_close_gui(player, always_open)
-  if always_open then
-    open_gui(player)  -- Create new or show existing
+  local gui_id = "gui-" .. player.name
+  if (not always_open) and global.guis[gui_id] and global.guis[gui_id].gui.window.visible then
+    destroy_gui(gui_id)  -- Hide existing gui
   else
-    local gui_id = "gui-" .. player.name
-    if global.guis[gui_id] then
-      local rocket_log_gui = global.guis[gui_id].gui
-      if rocket_log_gui.window.visible then
-        rocket_log_gui.window.visible = false  -- Hide existing
-      else
-        open_gui(player)  -- Show existing
-      end
-    else
-      open_gui(player)  -- Create new
-    end
+    open_gui(player)   -- Create new or show existing gui
   end
 end
 
@@ -145,6 +152,7 @@ end)
 return {
   open_or_close_gui = open_or_close_gui,
   open = open_gui,
+  close = close_gui,
   kill_all_guis = kill_all_guis,
   refresh_all_guis = refresh_all_guis
 }

@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2022-02-21
+  Changes:
+    - Add ability to close Rocket Log window by pressing 'E', Escape, or opening a different window.
+    - Close Rocket Log window when another window is opened.
+    - Right-click on launchpad and landingpad buttons to open the pad's settings GUI.
+    - Improved tooltip formatting.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2022-02-16
   Features:

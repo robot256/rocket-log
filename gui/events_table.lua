@@ -4,30 +4,32 @@ local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
 
-
+-- Handle actions when clicking on the launch and landing pad buttons
 local function handle_action(action, event)
-  -- TODO: Handle actions for rocket GUIs and remote viewing
-  if action.action == "remote-view" or action.action == "container-gui" then
-    local player = game.players[event.player_index]
+  local player = event.player_index and game.players[event.player_index]
+  
+  if player and (action.action == "remote-view" or action.action == "container-gui") then
     if remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
       remote.call("space-exploration", "remote_view_start", {player=player, zone_name=action.zone_name, position=action.position, location_name=action.label, freeze_history=true})
-    end
-  end
-  if action.action == "container-gui" then
-    local player = game.players[event.player_index]
-    local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
-    if surface and surface.valid then
-      local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
-      if container and container[1] and container[1].valid then
-        player.opened = container[1]
-        if player.opened == container[1] then
-          rocket_log_gui.open_or_close_gui(player)
+      
+      if event.button == defines.mouse_button_type.right then
+        if action.action == "container-gui" then
+          local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
+          if surface and surface.valid then
+            local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
+            if container and container[1] and container[1].valid then
+              player.opened = container[1]
+            end
+          end
+        else
+          player.opened = nil
         end
       end
     end
-  end 
+  end
 end
 
+-- Make a button for this item and quantity
 local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
   local prototype = nil
   if type == "item" then
@@ -35,8 +37,8 @@ local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
   elseif type == "virtual-signal" then
     prototype = game.virtual_signal_prototypes[name]
   end
-  local sprite = prototype and (type .. "/" .. name) or nil
-  local tooltip = prototype and prototype.localised_name or (type .. "/" .. name)
+  local sprite = (prototype and (type .. "/" .. name)) or nil
+  local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or (type .. "/" .. name), tostring(amount)}
   return {
     type = "sprite-button",
     style = color and "flib_slot_button_" .. color or "flib_slot_button_default",
@@ -64,8 +66,9 @@ local function events_row(rocket_data, children, gui_id)
       type = "sprite-button",
       sprite = "rocket-log-launchpad-gps",
       --tooltip = {"entity-name.se-rocket-launch-pad"},
+      tooltip = {"rocket-log.launchpad-tooltip", rocket_data.origin_zone_name, tostring(rocket_data.launchpad_id), {"control-keys.mouse-button-2-alt-1"}},
       actions = {
-        on_click = { type = "table", action = "remote-view", 
+        on_click = { type = "table", action = "container-gui", 
             zone_name = rocket_data.origin_zone_name,
             position = rocket_data.launchpad.position
         },
@@ -109,9 +112,9 @@ local function events_row(rocket_data, children, gui_id)
       table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "rocket-log-landingpad-gps",
-        tooltip = {"rocket-log.landing-pad-name", rocket_data.landingpad_name},
+        tooltip = {"rocket-log.landingpad-tooltip", rocket_data.landingpad_name, {"control-keys.mouse-button-2-alt-1"}},
         actions = {
-            on_click = { type = "table", action = "remote-view",
+            on_click = { type = "table", action = "container-gui",
                 zone_name = rocket_data.target_zone_name,
                 position = rocket_data.landingpad.position
             },
