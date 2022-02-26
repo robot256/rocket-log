@@ -37,6 +37,13 @@ events.on_gui_closed(function(event)
   end
 end)
 
+events.on_gui_opened(function(event)
+  local player = game.players[event.player_index]
+  -- Try not to close ourselves if another window is open when we get the command.
+  if event.gui_type ~= defines.gui_type.custom then
+    rocket_log_gui.close(player)
+  end
+end)
 
 ------------------------------------------------------------------------------------
 --                    FIND LOCAL VARIABLES THAT ARE USED GLOBALLY                 --

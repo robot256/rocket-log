@@ -26,6 +26,8 @@ end
 local function open_gui(player)
   local gui_id = "gui-" .. player.name
   if not global.guis[gui_id] then
+    --game.print(tostring(game.tick).." creating new gui")
+    
     local gui_contents = {
       {
         type = "frame",
@@ -73,6 +75,7 @@ local function open_gui(player)
   end
   local rocket_log_gui = global.guis[gui_id].gui
   if player.opened and player.opened ~= rocket_log_gui.window then
+    --game.print(tostring(game.tick).." closing other gui before opening rocketlog")
     player.opened = nil
   end
   toolbar.refresh(gui_id)
@@ -80,16 +83,24 @@ local function open_gui(player)
   rocket_log_gui.titlebar.drag_target = rocket_log_gui.window
   rocket_log_gui.window.force_auto_center()
   player.opened = rocket_log_gui.window
+  --game.print(tostring(player.opened))
+  --game.print(tostring(game.tick).." showing rocketlog gui")
   events_table.create_events_table(gui_id)
   
 end
 
 local function destroy_gui(gui_id)
   if global.guis[gui_id] then
+    --game.print(tostring(game.tick).." hiding gui")
     local rocket_log_gui = global.guis[gui_id].gui
     rocket_log_gui.window.visible = false
-    global.guis[gui_id].player.opened = nil
+    if global.guis[gui_id].player.opened == rocket_log_gui.window then
+      global.guis[gui_id].player.opened = nil
+      --game.print(tostring(game.tick).." player cleared")
+    end
     --global.guis[gui_id] = nil
+  --else
+    --game.print(tostring(game.tick).." no gui to hide")
   end
 end
 
