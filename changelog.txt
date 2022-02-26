@@ -1,10 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2022-02-26
+  Changes:
+    - New icon shown for entries with a missing/destroyed launchpad or landingpad.
+  Bugfixes:
+    - Fixed crash when showing entries for a launch pad that no longer exists.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 2022-02-21
   Changes:
-    - Add ability to close Rocket Log window by pressing 'E', Escape, or opening a different window.
-    - Close Rocket Log window when another window is opened.
-    - Right-click on launchpad and landingpad buttons to open the pad's settings GUI.
+    - Can close Rocket Log window by pressing 'E', Escape, or opening a different window.
+    - Right-click on launchpad and landingpad buttons opens the pad's settings GUI.
+    - Left-click on the launchpad and landingpad buttons closes the Rocket Log window after zooming to view the pad.
     - Improved tooltip formatting.
 ---------------------------------------------------------------------------------------------------
 Version: 1.1.0

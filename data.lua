@@ -42,11 +42,36 @@ local function create_sprite_gps_overlay(name, source, tint)
   }
 end
 
+local function create_sprite_destroyed_overlay(name, source)
+  return   {
+    type = "sprite",
+    name = name,
+    layers = {
+      {
+        filename = source.icon,
+        priority = "medium",
+        size = source.icon_size,
+        scale = 1,
+      },
+      {
+        filename = "__core__/graphics/icons/alerts/destroyed-icon.png",
+        priority = "high",
+        size = 64,
+        position = {0,0},
+        scale = 0.47,
+        shift = {4, 5},
+      }
+    }
+  }
+end
+
 
 
 data:extend {
   create_sprite_gps_overlay("rocket-log-landingpad-gps", data.raw.container["se-rocket-landing-pad"], {0.8, 0.8, 0.8, 1.0}),
   create_sprite_gps_overlay("rocket-log-launchpad-gps", data.raw.container["se-rocket-launch-pad"], {0.8, 0.8, 0.8, 1.0}),
+  create_sprite_destroyed_overlay("rocket-log-landingpad-missing", data.raw.container["se-rocket-landing-pad"]),
+  create_sprite_destroyed_overlay("rocket-log-launchpad-missing", data.raw.container["se-rocket-launch-pad"]),
 }
 
 data:extend {

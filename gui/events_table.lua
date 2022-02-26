@@ -12,18 +12,16 @@ local function handle_action(action, event)
     if remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
       remote.call("space-exploration", "remote_view_start", {player=player, zone_name=action.zone_name, position=action.position, location_name=action.label, freeze_history=true})
       
-      if event.button == defines.mouse_button_type.right then
-        if action.action == "container-gui" then
-          local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
-          if surface and surface.valid then
-            local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
-            if container and container[1] and container[1].valid then
-              player.opened = container[1]
-            end
+      if action.action == "container-gui" and event.button == defines.mouse_button_type.right then
+        local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
+        if surface and surface.valid then
+          local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
+          if container and container[1] and container[1].valid then
+            player.opened = container[1]
           end
-        else
-          player.opened = nil
         end
+      else
+        player.opened = nil
       end
     end
   end
@@ -60,21 +58,40 @@ local function events_row(rocket_data, children, gui_id)
     caption = misc.ticks_to_timestring(launch_time, true)
   }
 
-  local origin_children = {
-  -- Launchpad icon button
-    {
-      type = "sprite-button",
-      sprite = "rocket-log-launchpad-gps",
-      --tooltip = {"entity-name.se-rocket-launch-pad"},
-      tooltip = {"rocket-log.launchpad-tooltip", rocket_data.origin_zone_name, tostring(rocket_data.launchpad_id), {"control-keys.mouse-button-2-alt-1"}},
-      actions = {
-        on_click = { type = "table", action = "container-gui", 
-            zone_name = rocket_data.origin_zone_name,
-            position = rocket_data.launchpad.position
-        },
+  local origin_children = {}
+  if rocket_data.launchpad and rocket_data.launchpad.valid then
+    -- Launchpad icon button
+    table.insert(origin_children, 
+      {
+        type = "sprite-button",
+        sprite = "rocket-log-launchpad-gps",
+        tooltip = {"rocket-log.launchpad-tooltip", rocket_data.origin_zone_name, tostring(rocket_data.launchpad_id), {"control-keys.mouse-button-2-alt-1"}},
+        actions = {
+          on_click = { type = "table", action = "container-gui", 
+              zone_name = rocket_data.origin_zone_name,
+              position = rocket_data.origin_position
+          },
+        }
       }
-    },
+    )
+  else
+    -- Launchpad missing icon button
+    table.insert(origin_children, 
+      {
+        type = "sprite-button",
+        sprite = "rocket-log-launchpad-missing",
+        tooltip = {"rocket-log.missing-launchpad", tostring(rocket_data.launchpad_id)},
+        actions = {
+          on_click = { type = "table", action = "remote-view", 
+              zone_name = rocket_data.origin_zone_name,
+              position = rocket_data.origin_position
+          },
+        }
+      }
+    )
+  end
   -- Launch event origin zone
+  table.insert(origin_children,
     {
       type = "button",
       caption = {"rocket-log.origin-label", rocket_data.origin_zone_name, rocket_data.origin_zone_icon},
@@ -84,8 +101,8 @@ local function events_row(rocket_data, children, gui_id)
       actions = {
         on_click = { type = "toolbar", action = "filter", filter = "origin", value = rocket_data.origin_zone_name, gui_id = gui_id }
       }
-    },
-  }
+    }
+  )
   local origin_flow = {
     type = "flow",
     direction = "horizontal",
@@ -123,10 +140,8 @@ local function events_row(rocket_data, children, gui_id)
     else
       table.insert(target_children, 1, {
         type = "sprite-button",
-        sprite = "rocket-log-crosshairs-gps-white",
-        hovered_sprite = "rocket-log-crosshairs-gps",
-        clicked_sprite = "rocket-log-crosshairs-gps",
-        tooltip = {"rocket-log.missing-landingpad"},
+        sprite = "rocket-log-landingpad-missing",
+        tooltip = {"rocket-log.missing-landingpad", rocket_data.landingpad_name},
         actions = {
             on_click = { type = "table", action = "remote-view",
                 zone_name = rocket_data.target_zone_name,
