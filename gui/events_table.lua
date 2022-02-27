@@ -4,33 +4,6 @@ local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
 
--- Handle actions when clicking on the launch and landing pad buttons
-local function handle_action(action, event)
-  local player = event.player_index and game.players[event.player_index]
-  --game.print(tostring(game.tick)..tostring(player.opened))
-  
-  if player and (action.action == "remote-view" or action.action == "container-gui") then
-    if remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
-      --game.print(tostring(game.tick).." closing rocketlog gui because remote view")
-      player.opened = nil
-      remote.call("space-exploration", "remote_view_start", {player=player, zone_name=action.zone_name, position=action.position, location_name=action.label, freeze_history=true})
-      
-      if action.action == "container-gui" and event.button == defines.mouse_button_type.right then
-        local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
-        if surface and surface.valid then
-          local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
-          if container and container[1] and container[1].valid then
-            --game.print(tostring(game.tick).." opening launchpad gui")
-            player.opened = container[1]
-          end
-        end
-      end
-    end
-  end
-  --game.print(tostring(game.tick)..tostring(player.opened))
-          
-end
-
 -- Make a button for this item and quantity
 local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
   local prototype = nil
@@ -339,6 +312,5 @@ local function create_events_table(gui_id)
 end
 
 return {
-  handle_action = handle_action,
   create_events_table = create_events_table
 }

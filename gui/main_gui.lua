@@ -137,6 +137,7 @@ local function refresh_all_guis()
   end
 end
 
+-- Handle actions when clicking the mod gui button or close button
 local function handle_action(action, event)
   if action.action == "close-window" then
       destroy_gui(action.gui_id)
@@ -147,13 +148,41 @@ local function handle_action(action, event)
   end
 end
 
+
+-- Handle actions when clicking on the launch and landing pad buttons
+local function handle_events_action(action, event)
+  local player = event.player_index and game.players[event.player_index]
+  --game.print(tostring(game.tick)..tostring(player.opened))
+  
+  if player and (action.action == "remote-view" or action.action == "container-gui") then
+    if remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
+      --game.print(tostring(game.tick).." closing rocketlog gui because remote view")
+      close_gui(player)  -- Must close the GUI before entering remote view for the first time, or the controller becomes disconnected.
+      remote.call("space-exploration", "remote_view_start", {player=player, zone_name=action.zone_name, position=action.position, location_name=action.label, freeze_history=true})
+      
+      if action.action == "container-gui" and event.button == defines.mouse_button_type.right then
+        local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
+        if surface and surface.valid then
+          local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
+          if container and container[1] and container[1].valid then
+            --game.print(tostring(game.tick).." opening launchpad gui")
+            player.opened = container[1]
+          end
+        end
+      end
+    end
+  end
+  --game.print(tostring(game.tick)..tostring(player.opened))
+end
+
+
 gui.hook_events(function(event)
 	local action = gui.read_action(event)
 	if action then
     if action.type == "generic" then
       handle_action(action, event)
     elseif action.type == "table" then
-      events_table.handle_action(action, event)
+      handle_events_action(action, event)
     elseif action.type == "toolbar" then
       toolbar.handle_action(action, event)
     end

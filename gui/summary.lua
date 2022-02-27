@@ -27,39 +27,95 @@ local function add_event(event, summary)
       data.count = data.count + count
     end
   end
-  
+
   -- Total per origin surface
   summary.origins[event.origin_zone_name] = summary.origins[event.origin_zone_name] or
       {zone_index=event.origin_zone_id, zone_name=event.origin_zone_name, icon=event.origin_zone_icon, count=0, launchpads={}}
   summary.origins[event.origin_zone_name].count = summary.origins[event.origin_zone_name].count + 1
   summary.origins[event.origin_zone_name].position = event.origin_position
-  
+
   -- Total per launchpad
-  local launchpad_summary = summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] or
-      {name=event.origin_zone_name, launchpad_id=event.launchpad_id, icon="rocket-log-launchpad-gps", zone_name=event.origin_zone_name, count=0}
-  launchpad_summary.count = launchpad_summary.count + 1
-  launchpad_summary.position = event.origin_position
-  summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] = launchpad_summary
-  
-  
+  if not summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] then
+    local launchpad_summary = {
+        name = event.origin_zone_name,
+        launchpad_id = event.launchpad_id,
+        zone_name = event.origin_zone_name,
+        position = event.origin_position,
+        count = 0
+      }
+    if event.launchpad.valid then
+      launchpad_summary.entity = event.launchpad
+      launchpad_summary.icon = "rocket-log-launchpad-gps"
+      launchpad_summary.tooltip = {"rocket-log.summary-launchpad-tooltip",
+                                    event.origin_zone_name, tostring(event.launchpad_id), "0", {"control-keys.mouse-button-2-alt-1"} }
+      launchpad_summary.action = "container-gui"
+    else
+      launchpad_summary.entity = nil
+      launchpad_summary.icon = "rocket-log-launchpad-missing"
+      launchpad_summary.tooltip = {"rocket-log.summary-launchpad-missing-tooltip", event.origin_zone_name, tostring(event.launchpad_id), "0" }
+      launchpad_summary.action = "remote-view"
+    end
+    summary.origins[event.origin_zone_name].launchpads[event.launchpad_id] = launchpad_summary
+  end
+  summary.origins[event.origin_zone_name].launchpads[event.launchpad_id].count =
+      summary.origins[event.origin_zone_name].launchpads[event.launchpad_id].count + 1
+
+
   -- Total per target surface
-  summary.targets[event.target_zone_name] = summary.targets[event.target_zone_name] or {zone_index=event.target_zone_id, zone_name=event.target_zone_name, count=0, icon=event.target_zone_icon, landingpads={}, area_count=0}
+  summary.targets[event.target_zone_name] = summary.targets[event.target_zone_name] or
+      {
+        zone_index = event.target_zone_id,
+        zone_name = event.target_zone_name,
+        count = 0,
+        icon = event.target_zone_icon,
+        landingpads = {}
+      }
   summary.targets[event.target_zone_name].count = summary.targets[event.target_zone_name].count + 1
   summary.targets[event.target_zone_name].position = event.target_position
-  
+
   -- Total per landingpad or area
   if event.landingpad_name then
-    local landingpad_summary = summary.targets[event.target_zone_name].landingpads[event.landingpad_name] or 
-        {name=event.landingpad_name, icon="rocket-log-landingpad-gps", zone_name=event.target_zone_name, count=0}
-    landingpad_summary.count = landingpad_summary.count + 1
-    landingpad_summary.position = event.target_position
-    summary.targets[event.target_zone_name].landingpads[event.landingpad_name] = landingpad_summary
+    -- Most recent event is saved first, don't position/entity information with subsequent (earlier) events
+    if not summary.targets[event.target_zone_name].landingpads[event.landingpad_name] then
+      local landingpad_summary = {
+          name = event.landingpad_name,
+          zone_name = event.target_zone_name,
+          position = event.target_position,
+          count = 0
+        }
+      if event.landingpad.valid then
+        landingpad_summary.entity = event.landingpad
+        landingpad_summary.icon = "rocket-log-landingpad-gps"
+        landingpad_summary.tooltip = {"rocket-log.summary-landingpad-tooltip",
+                                      event.landingpad_name, "0", {"control-keys.mouse-button-2-alt-1"} }
+        landingpad_summary.action = "container-gui"
+      else
+        landingpad_summary.entity = nil
+        landingpad_summary.icon = "rocket-log-landingpad-missing"
+        landingpad_summary.tooltip = {"rocket-log.summary-landingpad-missing-tooltip", event.landingpad_name, "0"}
+        landingpad_summary.action = "remote-view"
+      end
+      summary.targets[event.target_zone_name].landingpads[event.landingpad_name] = landingpad_summary
+    end
+
+    summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  =
+        summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  + 1
+
   else
-    local landingpad_summary = summary.targets[event.target_zone_name].landingpads["__area__"] or 
-        {name={"rocket-log.no-landingpad"}, zone_name=event.target_zone_name, count=0}
-    landingpad_summary.count = landingpad_summary.count + 1
-    landingpad_summary.position = event.target_position
-    summary.targets[event.target_zone_name].landingpads["__area__"] = landingpad_summary
+    if not summary.targets[event.target_zone_name].landingpads["__area__"] then
+      summary.targets[event.target_zone_name].landingpads["__area__"] = {
+          name = {"rocket-log.no-landingpad"},
+          zone_name = event.target_zone_name,
+          position = event.target_position,
+          count = 0,
+          tooltip = {"rocket-log.summary-area-tooltip", "0"},
+          action = "remote-view",
+          icon = "rocket-log-crosshairs-gps-white",
+          hovered_icon = "rocket-log-crosshairs-gps"
+        }
+    end
+    summary.targets[event.target_zone_name].landingpads["__area__"].count =
+        summary.targets[event.target_zone_name].landingpads["__area__"].count + 1
   end
 
 end
@@ -88,7 +144,7 @@ local function create_gui(summary, gui_id)
     table.sort(landingpad_list, function(a, b) return a.count > b.count end)
     target.landingpads = landingpad_list
   end
-  
+
   -- Makes one line for the top ten surfaces origin surface
   -- Line starts with surface count, icon, and name
   -- Then list of top ten launchpads
@@ -96,20 +152,21 @@ local function create_gui(summary, gui_id)
   local _, origins_top = tables.for_n_of(origins, nil, 10, function(origin)
     local launchpad_children = {}
     for id, launchpad in pairs(origin.launchpads) do
+      launchpad.tooltip[4] = tostring(launchpad.count)
       table.insert(launchpad_children,
         {
           type = "sprite-button",
           sprite = launchpad.icon,
-          tooltip = {"rocket-log.summary-launchpad-tooltip", launchpad.name, tostring(launchpad.launchpad_id), tostring(launchpad.count), {"control-keys.mouse-button-2-alt-1"}},
+          tooltip = launchpad.tooltip,
           actions = {
-            on_click = { type = "table", action = "container-gui", 
+            on_click = { type = "table", action = launchpad.action,
               zone_name = launchpad.zone_name,
               position = launchpad.position
             }
           }
         })
     end
-      
+
     return {
       count = {
         type = "label",
@@ -136,28 +193,27 @@ local function create_gui(summary, gui_id)
   local _, targets_top = tables.for_n_of(targets, nil, 10, function(target)
     local landingpad_children = {}
     for _, landingpad in pairs(target.landingpads) do
-      local pad_tooltip
-      if landingpad.icon then
-        pad_tooltip = {"rocket-log.summary-landingpad-tooltip", landingpad.name, tostring(landingpad.count), {"control-keys.mouse-button-2-alt-1"}}
+      if landingpad.tooltip[1] == "rocket-log.summary-area-tooltip" then
+        landingpad.tooltip[2] = tostring(landingpad.count)
       else
-        pad_tooltip = {"rocket-log.summary-area-tooltip", tostring(landingpad.count)}
+        landingpad.tooltip[4] = tostring(landingpad.count)
       end
-      table.insert(landingpad_children, 
+      table.insert(landingpad_children,
         {
           type = "sprite-button",
-          sprite = landingpad.icon or "rocket-log-crosshairs-gps-white",
-          hovered_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
-          clicked_sprite = ((landingpad.icon == nil) and "rocket-log-crosshairs-gps") or nil,
-          tooltip = pad_tooltip,
+          sprite = landingpad.icon,
+          hovered_sprite = landingpad.hovered_icon,
+          clicked_sprite = landingpad.hovered_icon,
+          tooltip = landingpad.tooltip,
           actions = {
-            on_click = { type = "table", action = "container-gui", 
+            on_click = { type = "table", action = landingpad.action,
               zone_name = landingpad.zone_name,
               position = landingpad.position
             }
           }
         })
     end
-    
+
     return {
       count = {
         type = "label",
