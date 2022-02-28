@@ -196,7 +196,7 @@ local function create_gui(summary, gui_id)
       if landingpad.tooltip[1] == "rocket-log.summary-area-tooltip" then
         landingpad.tooltip[2] = tostring(landingpad.count)
       else
-        landingpad.tooltip[4] = tostring(landingpad.count)
+        landingpad.tooltip[3] = tostring(landingpad.count)
       end
       table.insert(landingpad_children,
         {
