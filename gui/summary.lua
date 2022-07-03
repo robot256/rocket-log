@@ -237,10 +237,10 @@ local function create_gui(summary, gui_id)
   end)
 
   local items_top
-  local _, items_top = tables.for_n_of(items, nil, 30, function(item)
+  local _, items_top = tables.for_n_of(items, nil, 60, function(item)
     local prototype = game.item_prototypes[item.name]
     local sprite = prototype and ("item/" .. item.name) or nil
-    local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or ("item/" .. item.name), tostring(item.count)}
+    local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or ("item/" .. item.name), util.format_number(item.count,true)}
     return {
       type = "sprite-button",
       sprite = sprite,

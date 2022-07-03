@@ -114,8 +114,8 @@ local function handle_action(action, event)
     local older_than = game.tick - time_filter.ticks(filter_guis.time_period.selected_index)
     local player = game.players[event.player_index]
     local force = player.force
-    rocket_log.clear_older(event.player_index, older_than)
-    force.print { "rocket-log.player-cleared-history", player.name }
+    local deleted_count = rocket_log.clear_older(event.player_index, older_than)
+    force.print { "rocket-log.player-cleared-history", player.name, deleted_count, player.force.name }
     refresh(gui_id)
     
   elseif action.action == "filter" then

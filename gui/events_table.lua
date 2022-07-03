@@ -151,8 +151,13 @@ local function events_row(rocket_data, children, gui_id)
   -- Launched contents
   local contents_children = {}
   if rocket_data.contents then
+    local sorted_contents = {}
     for name, count in pairs(rocket_data.contents) do
-      table.insert(contents_children, sprite_button_type_name_amount("item", name, count, nil, gui_id))
+      table.insert(sorted_contents, {name=name, count=count})
+    end
+    table.sort(sorted_contents, function(a, b) return a.count > b.count end)
+    for index = 1,#sorted_contents do
+      table.insert(contents_children, sprite_button_type_name_amount("item", sorted_contents[index].name, sorted_contents[index].count, nil, gui_id))
     end
   end
   local contents_flow = {

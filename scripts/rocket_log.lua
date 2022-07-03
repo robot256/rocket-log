@@ -4,12 +4,13 @@ local util = require("util")
 
 
 local function clear_older(player_index, older_than)
-  -- TODO: Auto-delete events after 6h or so?
   local force_index = game.players[player_index].force.index
+  local initial_size = #global.history
   global.history = tables.filter(global.history, function(v)
       return v.force_index ~= force_index or v.launch_time >= older_than
     end,
     true)
+  return initial_size - #global.history
 end
 
 
