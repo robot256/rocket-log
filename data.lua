@@ -1,3 +1,13 @@
+--------
+-- Filter and Swap Arrow icons copied from Recipe Book by Raiguard
+local data_util = require("__flib__.data-util")
+local tool_icons = "__rocket-log__/graphics/icons/tool-icons.png"
+
+data:extend {
+  --data_util.build_sprite("rocket-log-filter", { 0, 288 }, tool_icons, 32, 2),
+  data_util.build_sprite("rocket-log-swap", { 0, 320 }, tool_icons, 32, 2),
+}
+--------
 
 local function create_sprite_icon(name, size, scale, path, tint)
   return {
