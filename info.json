@@ -1,6 +1,6 @@
 {
   "name": "rocket-log",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "factorio_version": "1.1",
   "title": "Rocket Log",
   "author": "robot256",
@@ -9,6 +9,6 @@
   "description": "Keep a record of all Space Exploration cargo rocket flights.  Based on Train Log by Zomis.",
   "dependencies": [
 		"flib >= 0.8.2",
-		"space-exploration >= 0.5.104"
+		"space-exploration >= 0.6.79"
 	]
 }

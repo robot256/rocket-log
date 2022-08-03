@@ -82,6 +82,7 @@ data:extend {
   create_sprite_gps_overlay("rocket-log-launchpad-gps", data.raw.container["se-rocket-launch-pad"], {0.8, 0.8, 0.8, 1.0}),
   create_sprite_destroyed_overlay("rocket-log-landingpad-missing", data.raw.container["se-rocket-landing-pad"]),
   create_sprite_destroyed_overlay("rocket-log-launchpad-missing", data.raw.container["se-rocket-launch-pad"]),
+  create_sprite_destroyed_overlay("rocket-log-rocket-crashed", data.raw["virtual-signal"]["se-cargo-rocket"]),
 }
 
 data:extend {

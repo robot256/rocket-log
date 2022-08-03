@@ -102,7 +102,19 @@ local function events_row(rocket_data, children, gui_id)
 
   -- Landing pad target
   if rocket_data.landingpad_name then
-    if rocket_data.landingpad and rocket_data.landingpad.valid then
+    if rocket_data.landing_failed then
+        table.insert(target_children, 1, {
+        type = "sprite-button",
+        sprite = "rocket-log-rocket-crashed",
+        tooltip = {"rocket-log.rocket-crashed", rocket_data.landingpad_name},
+        actions = {
+            on_click = { type = "table", action = "remote-view",
+                zone_name = rocket_data.target_zone_name,
+                position = rocket_data.target_position
+            },
+        }
+      })
+    elseif rocket_data.landingpad and rocket_data.landingpad.valid then
       table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "rocket-log-landingpad-gps",

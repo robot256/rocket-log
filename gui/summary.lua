@@ -75,32 +75,48 @@ local function add_event(event, summary)
 
   -- Total per landingpad or area
   if event.landingpad_name then
-    -- Most recent event is saved first, don't position/entity information with subsequent (earlier) events
-    if not summary.targets[event.target_zone_name].landingpads[event.landingpad_name] then
-      local landingpad_summary = {
-          name = event.landingpad_name,
-          zone_name = event.target_zone_name,
-          position = event.target_position,
-          count = 0
-        }
-      if event.landingpad.valid then
-        landingpad_summary.entity = event.landingpad
-        landingpad_summary.icon = "rocket-log-landingpad-gps"
-        landingpad_summary.tooltip = {"rocket-log.summary-landingpad-tooltip",
-                                      event.landingpad_name, "0", {"control-keys.mouse-button-2-alt-1"} }
-        landingpad_summary.action = "container-gui"
-      else
-        landingpad_summary.entity = nil
-        landingpad_summary.icon = "rocket-log-landingpad-missing"
-        landingpad_summary.tooltip = {"rocket-log.summary-landingpad-missing-tooltip", event.landingpad_name, "0"}
-        landingpad_summary.action = "remote-view"
+    if event.landing_failed then
+      -- Keep count of crashed rockets for this destination surface
+      if not summary.targets[event.target_zone_name].landingpads["__crashed__"] then
+        summary.targets[event.target_zone_name].landingpads["__crashed__"] = {
+            name = {"rocket-log.rocket-crashed"},
+            zone_name = event.target_zone_name,
+            position = event.target_position,
+            count = 0,
+            tooltip = {"rocket-log.summary-crashed-tooltip", "0"},
+            action = "remote-view",
+            icon = "rocket-log-rocket-crashed"
+          }
       end
-      summary.targets[event.target_zone_name].landingpads[event.landingpad_name] = landingpad_summary
+      summary.targets[event.target_zone_name].landingpads["__crashed__"].count =
+          summary.targets[event.target_zone_name].landingpads["__crashed__"].count + 1
+    else
+      -- Most recent event is saved first, don't position/entity information with subsequent (earlier) events
+      if not summary.targets[event.target_zone_name].landingpads[event.landingpad_name] then
+        local landingpad_summary = {
+            name = event.landingpad_name,
+            zone_name = event.target_zone_name,
+            position = event.target_position,
+            count = 0
+          }
+        if event.landingpad.valid then
+          landingpad_summary.entity = event.landingpad
+          landingpad_summary.icon = "rocket-log-landingpad-gps"
+          landingpad_summary.tooltip = {"rocket-log.summary-landingpad-tooltip",
+                                        event.landingpad_name, "0", {"control-keys.mouse-button-2-alt-1"} }
+          landingpad_summary.action = "container-gui"
+        else
+          landingpad_summary.entity = nil
+          landingpad_summary.icon = "rocket-log-landingpad-missing"
+          landingpad_summary.tooltip = {"rocket-log.summary-landingpad-missing-tooltip", event.landingpad_name, "0"}
+          landingpad_summary.action = "remote-view"
+        end
+        summary.targets[event.target_zone_name].landingpads[event.landingpad_name] = landingpad_summary
+      end
+
+      summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  =
+          summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  + 1
     end
-
-    summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  =
-        summary.targets[event.target_zone_name].landingpads[event.landingpad_name].count  + 1
-
   else
     if not summary.targets[event.target_zone_name].landingpads["__area__"] then
       summary.targets[event.target_zone_name].landingpads["__area__"] = {
@@ -192,11 +208,18 @@ local function create_gui(summary, gui_id)
   local targets_top
   local _, targets_top = tables.for_n_of(targets, nil, 10, function(target)
     local landingpad_children = {}
+    local total_count = 0
+    local failed_count = 0
     for _, landingpad in pairs(target.landingpads) do
       if landingpad.tooltip[1] == "rocket-log.summary-area-tooltip" then
         landingpad.tooltip[2] = tostring(landingpad.count)
+      elseif landingpad.tooltip[1] == "rocket-log.summary-crashed-tooltip" then
+        landingpad.tooltip[2] = tostring(landingpad.count)
+        total_count = total_count + landingpad.count
+        failed_count = failed_count + landingpad.count
       else
         landingpad.tooltip[3] = tostring(landingpad.count)
+        total_count = total_count + landingpad.count
       end
       table.insert(landingpad_children,
         {
@@ -213,11 +236,19 @@ local function create_gui(summary, gui_id)
           }
         })
     end
+    
+    local count_caption
+    if failed_count > 0 and total_count > 0 then
+      local failure_rate = math.floor(failed_count / total_count * 100)
+      count_caption = {"rocket-log.summary-target-stats", target.count, failure_rate}
+    else
+      count_caption = {"rocket-log.summary-target-stats-simple", target.count}
+    end
 
     return {
       count = {
         type = "label",
-        caption = tostring(target.count)
+        caption = count_caption
       },
       surface = {
         type = "button",
