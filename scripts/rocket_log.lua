@@ -41,8 +41,8 @@ function OnRocketLaunched(event)
 end
 
 function OnRocketCrashed(event)
-  log(tostring(game.tick)..": Rocket crashed!")
-  log(serpent.block(event))
+  --log(tostring(game.tick)..": Rocket crashed!")
+  --log(serpent.block(event))
   
   -- Update most recent launch from this launchpad to reflect that it crashed
   for idx = #global.history, 1, -1 do
