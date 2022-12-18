@@ -27,9 +27,13 @@ local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
 end
 
 -- Makes one row per rocket launch
-local function events_row(rocket_data, children, gui_id)
-  -- Launch time display
+local function events_row(rocket_data, children, gui_id, relative_time_start)
+  -- Launch time display (if relative, then current tick is provided)
   local launch_time = rocket_data.launch_time
+  if relative_time_start then
+    launch_time = relative_time_start - launch_time
+  end
+
   local timestamp = {
     type = "label",
     caption = misc.ticks_to_timestring(launch_time, true)
@@ -225,6 +229,13 @@ local function iterate_backwards(tbl)
 end
 
 local function create_result_guis(histories, filters, columns, gui_id)
+  -- Check if player has selected relative timestamp mode
+  local relative_time_setting = global.guis[gui_id].player.mod_settings["rocket-log-relative-time"]
+  local relative_time_start = nil
+  if relative_time_setting.value == true then
+    relative_time_start = game.tick
+  end
+  
   local children = {}
   local summary = summary_gui.create_new_summary()
   for _, column in pairs(columns) do
@@ -235,7 +246,7 @@ local function create_result_guis(histories, filters, columns, gui_id)
   end
   for _, rocket_data in iterate_backwards(histories) do
     if matches_filter(rocket_data, filters) then
-      events_row(rocket_data, children, gui_id)
+      events_row(rocket_data, children, gui_id, relative_time_start)
       summary_gui.add_event(rocket_data, summary)
     end
   end
