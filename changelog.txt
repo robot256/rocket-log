@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.13
+Date: 2024-06-30
+  Features:
+    - Added setting for number of launch records to retain for each force.  NOTE: Make sure the mod setting is 0 (unlimited) BEFORE loading a save game with the new version to avoid accidental deletions!
+  Changes:
+    - Removed the "Clear older entries" button to avoid accidental deletions.
+    - Added display of the number of launch records filtered and stored.
+    - Added 96-hour setting to time filtering option.
+---------------------------------------------------------------------------------------------------
 Version: 1.1.12
 Date: 2023-12-10
   Changes:

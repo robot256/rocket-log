@@ -1,5 +1,8 @@
 local tables = require("__flib__.table")
 
+-- Entry.time is in seconds
+-- Text is shown in minutes / hours
+-- Max value is 2**32-1 ticks
 local time_period_items = {
   {
     time = 60*15,
@@ -24,6 +27,10 @@ local time_period_items = {
   {
     time = 60*60*48,
     text = {"rocket-log.time-hours",48}
+  },
+  {
+    time = 60*60*96,
+    text = {"rocket-log.time-hours",96}
   },
   {
     time = 4294967295/60,

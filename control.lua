@@ -1,7 +1,7 @@
 local events = require("__flib__.event")
 
 rocket_log_gui = require("gui/main_gui")
-require("scripts/rocket_log")
+rocket_log = require("scripts/rocket_log")
 rocket_gui_button = require("gui/mod_gui_button")
 
 events.on_init(function()
@@ -12,6 +12,7 @@ events.on_init(function()
   for _, player in pairs(game.players) do
     rocket_gui_button.add_mod_gui_button(player)
   end
+  global.max_size = settings.global["rocket-log-retention-depth"].value
 end)
 
 events.on_load(init_events)
@@ -23,6 +24,9 @@ events.on_configuration_changed(function()
   for _, player in pairs(game.players) do
     rocket_gui_button.add_mod_gui_button(player)
   end
+  -- Make sure the current setting of retention depth is respected
+  global.max_size = settings.global["rocket-log-retention-depth"].value
+  rocket_log.clear_excess_all()
 end)
 
 events.register("rocket-log-open", function(event)
@@ -44,6 +48,21 @@ events.on_gui_opened(function(event)
     rocket_log_gui.close(player)
   end
 end)
+
+
+-- Check to add or remove button when player changes setting
+events.on_runtime_mod_setting_changed( function(event)
+  if event.setting == "rocket-log-mod-button" then
+    if event.player_index and game.players[event.player_index] then
+      rocket_log_gui.add_mod_gui_button(game.players[event.player_index])
+    end
+  elseif event.setting == "rocket-log-retention-depth" then
+    global.max_size = settings.global["rocket-log-retention-depth"].value
+    rocket_log.clear_excess_all()
+    rocket_log_gui.refresh_all_guis()
+  end
+end)
+
 
 ------------------------------------------------------------------------------------
 --                    FIND LOCAL VARIABLES THAT ARE USED GLOBALLY                 --

@@ -67,13 +67,6 @@ events.on_research_reversed( function(event)
   end
 end)
 
--- Check to add or remove button when player changes setting
-events.on_runtime_mod_setting_changed( function(event)
-  if event.setting == "rocket-log-mod-button" and event.player_index and game.players[event.player_index] then
-    add_mod_gui_button(game.players[event.player_index])
-  end
-end)
-
 return {
     add_mod_gui_button = add_mod_gui_button
 }

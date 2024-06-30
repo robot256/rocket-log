@@ -238,6 +238,7 @@ local function create_result_guis(histories, filters, columns, gui_id)
   
   local children = {}
   local summary = summary_gui.create_new_summary()
+  local count = 0
   for _, column in pairs(columns) do
     table.insert(children, {
       type = "label",
@@ -248,9 +249,10 @@ local function create_result_guis(histories, filters, columns, gui_id)
     if matches_filter(rocket_data, filters) then
       events_row(rocket_data, children, gui_id, relative_time_start)
       summary_gui.add_event(rocket_data, summary)
+      count = count + 1
     end
   end
-  return children, summary
+  return children, summary, count
 end
 
 local function create_events_table(gui_id)
@@ -292,7 +294,8 @@ local function create_events_table(gui_id)
 
   local events_columns =  { "timestamp", "origin", "target", "contents" }
   local summary
-  local children_guis, summary = create_result_guis(histories, filters, events_columns, gui_id)
+  local count
+  local children_guis, summary, count = create_result_guis(histories, filters, events_columns, gui_id)
   local tabs = rocket_log_gui.gui.tabs
   tabs.events_contents.clear()
   tabs.summary_contents.clear()
@@ -315,6 +318,8 @@ local function create_events_table(gui_id)
       }
     }
   })
+  
+  filter_guis.stats.caption = {"rocket-log.display-stats",count,#global.history}
 
   return gui.build(tabs.events_contents, {
     {

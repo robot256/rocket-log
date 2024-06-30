@@ -140,15 +140,7 @@ local function handle_action(action, event)
   local gui_id = action.gui_id
   local filter_guis = global.guis[gui_id].gui.filter
   
-  if action.action == "clear-older" then
-    local older_than = game.tick - time_filter.ticks(filter_guis.time_period.selected_index)
-    local player = game.players[event.player_index]
-    local force = player.force
-    local deleted_count = rocket_log.clear_older(event.player_index, older_than)
-    force.print { "rocket-log.player-cleared-history", player.name, deleted_count, player.force.name }
-    refresh(gui_id)
-    
-  elseif action.action == "filter" then
+  if action.action == "filter" then
     if action.filter == "item" and game.item_prototypes[action.value] then
       filter_guis.item.elem_value = action.value
       refresh(gui_id)
@@ -223,13 +215,10 @@ local function create_toolbar(gui_id)
             }
           },
           {
-            type = "button",
-            style = "red_button",
-            caption = { "rocket-log.clear-older" },
-            actions = {
-              on_click = { type = "toolbar", action = "clear-older", gui_id = gui_id }
-            }
-          },
+            type = "label",
+            caption = "test",
+            ref = {"filter","stats"}
+          }
         }
       },
       {
