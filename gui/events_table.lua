@@ -1,5 +1,5 @@
-local misc = require("__flib__.misc")
 local gui = require("__flib__.gui-beta")
+local format = require("__flib__.format")
 local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
@@ -36,7 +36,7 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
 
   local timestamp = {
     type = "label",
-    caption = misc.ticks_to_timestring(launch_time, true)
+    caption = format.time(launch_time, true)
   }
 
   local origin_children = {}
