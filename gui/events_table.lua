@@ -230,7 +230,7 @@ end
 
 local function create_result_guis(histories, filters, columns, gui_id)
   -- Check if player has selected relative timestamp mode
-  local relative_time_setting = global.guis[gui_id].player.mod_settings["rocket-log-relative-time"]
+  local relative_time_setting = storage.guis[gui_id].player.mod_settings["rocket-log-relative-time"]
   local relative_time_start = nil
   if relative_time_setting.value == true then
     relative_time_start = game.tick
@@ -257,10 +257,10 @@ end
 
 local function create_events_table(gui_id)
   -- Loop through all the histories first and then check current, sort by the tick of last entry
-  local rocket_log_gui = global.guis[gui_id]
+  local rocket_log_gui = storage.guis[gui_id]
   local force_index = rocket_log_gui.player.force.index
   local histories = {}
-  for _, record in pairs(global.history) do
+  for _, record in pairs(storage.history) do
     if record.force_index == force_index then
       table.insert(histories, record)
     end
@@ -319,7 +319,7 @@ local function create_events_table(gui_id)
     }
   })
   
-  filter_guis.stats.caption = {"rocket-log.display-stats",count,#global.history}
+  filter_guis.stats.caption = {"rocket-log.display-stats",count,#storage.history}
 
   return gui.build(tabs.events_contents, {
     {

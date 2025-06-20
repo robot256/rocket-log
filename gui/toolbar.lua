@@ -21,7 +21,7 @@ local rocket_log = require("scripts/rocket_log")
 
 local function update_filters(gui_id)
   -- Update the dropdown list options
-  local rocket_log_gui = global.guis[gui_id]
+  local rocket_log_gui = storage.guis[gui_id]
   local filter_guis = rocket_log_gui.gui.filter
   local force_index = rocket_log_gui.player.force.index
   
@@ -32,7 +32,7 @@ local function update_filters(gui_id)
   local target_list = {}
   --local origin_system_list = {}
   --local target_system_list = {}
-  for _, record in pairs(global.history) do
+  for _, record in pairs(storage.history) do
     if record.force_index == force_index then
       if not origin_list[record.origin_zone_id] then
         origin_list[record.origin_zone_id] = true
@@ -100,7 +100,7 @@ end
 
 -- Assign the origin filter to target, and target filter to origin, if possible
 local function swap_filters(gui_id)
-  local rocket_log_gui = global.guis[gui_id]
+  local rocket_log_gui = storage.guis[gui_id]
   local filter_guis = rocket_log_gui.gui.filter
   
   local old_origin = filter_guis.origin_list.get_item(filter_guis.origin_list.selected_index)
@@ -129,7 +129,7 @@ local function swap_filters(gui_id)
 end
 
 local function refresh(gui_id)
-  local filter_guis = global.guis[gui_id].gui.filter
+  local filter_guis = storage.guis[gui_id].gui.filter
   filter_guis.item.tooltip = (filter_guis.item.elem_value and game.item_prototypes[filter_guis.item.elem_value] and 
                                                     game.item_prototypes[filter_guis.item.elem_value].localised_name) or ""
   update_filters(gui_id)
@@ -138,7 +138,7 @@ end
 
 local function handle_action(action, event)
   local gui_id = action.gui_id
-  local filter_guis = global.guis[gui_id].gui.filter
+  local filter_guis = storage.guis[gui_id].gui.filter
   
   if action.action == "filter" then
     if action.filter == "item" and game.item_prototypes[action.value] then

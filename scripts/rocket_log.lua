@@ -4,18 +4,18 @@ local util = require("util")
 
 
 local function clear_excess(force_id)
-  local max_size = global.max_size
+  local max_size = storage.max_size
   if not max_size or max_size < 1 then return end
   --game.print("Purging history of force "..tostring(force_id).." down to "..tostring(max_size).." entries")
   local found_count = 0
   local deleted_count = 0
   -- Newest entries are at end of list, count backwards
   -- This also means that when we remove an entry, the indexes of the items we have yet to check don't change.
-  for index=#global.history,1,-1 do
-    if global.history[index].force_index == force_id then
+  for index=#storage.history,1,-1 do
+    if storage.history[index].force_index == force_id then
       found_count = found_count + 1
       if found_count > max_size then
-        table.remove(global.history, index)
+        table.remove(storage.history, index)
         deleted_count = deleted_count + 1
   --      print("deleted entry "..tostring(index))
       else
@@ -27,13 +27,13 @@ local function clear_excess(force_id)
 end
 
 local function clear_excess_all()
-  local initial_size = #global.history
+  local initial_size = #storage.history
   for _,force in pairs(game.forces) do
     clear_excess(force.index)
   end
-  local final_size = #global.history
+  local final_size = #storage.history
   if final_size < initial_size then
-    game.print({"rocket-log.setting-cleared-history",initial_size-final_size,initial_size,global.max_size})
+    game.print({"rocket-log.setting-cleared-history",initial_size-final_size,initial_size,storage.max_size})
   end
 end
 
@@ -60,7 +60,7 @@ function OnRocketLaunched(event)
     launched_players = {},
     landing_failed = nil,
   }
-  table.insert(global.history, log_data)
+  table.insert(storage.history, log_data)
   clear_excess(log_data.force_index)
 end
 
@@ -69,8 +69,8 @@ function OnRocketCrashed(event)
   --log(serpent.block(event))
   
   -- Update most recent launch from this launchpad to reflect that it crashed
-  for idx = #global.history, 1, -1 do
-    local log_data = global.history[idx]
+  for idx = #storage.history, 1, -1 do
+    local log_data = storage.history[idx]
     if log_data.launchpad_id == event.unit_number then
       if log_data.landingpad_name then
         -- This was a recent launch targeting a launchpad, update log entry

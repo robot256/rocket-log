@@ -25,7 +25,7 @@ end
 
 local function open_gui(player)
   local gui_id = "gui-" .. player.name
-  if not global.guis[gui_id] then
+  if not storage.guis[gui_id] then
     --game.print(tostring(game.tick).." creating new gui")
     
     local gui_contents = {
@@ -67,13 +67,13 @@ local function open_gui(player)
         }
       }
     }
-    global.guis[gui_id] = {
+    storage.guis[gui_id] = {
       gui_id = gui_id,
       gui = gui.build(player.gui.screen, gui_contents),
       player = player
     }
   end
-  local rocket_log_gui = global.guis[gui_id].gui
+  local rocket_log_gui = storage.guis[gui_id].gui
   if player.opened and player.opened ~= rocket_log_gui.window then
     --game.print(tostring(game.tick).." closing other gui before opening rocketlog")
     player.opened = nil
@@ -90,15 +90,15 @@ local function open_gui(player)
 end
 
 local function destroy_gui(gui_id)
-  if global.guis[gui_id] then
+  if storage.guis[gui_id] then
     --game.print(tostring(game.tick).." hiding gui")
-    local rocket_log_gui = global.guis[gui_id].gui
+    local rocket_log_gui = storage.guis[gui_id].gui
     rocket_log_gui.window.visible = false
-    if global.guis[gui_id].player.opened == rocket_log_gui.window then
-      global.guis[gui_id].player.opened = nil
+    if storage.guis[gui_id].player.opened == rocket_log_gui.window then
+      storage.guis[gui_id].player.opened = nil
       --game.print(tostring(game.tick).." player cleared")
     end
-    --global.guis[gui_id] = nil
+    --storage.guis[gui_id] = nil
   --else
     --game.print(tostring(game.tick).." no gui to hide")
   end
@@ -107,14 +107,14 @@ end
 local function close_gui(player)
   local gui_id = "gui-" .. player.name
   -- Ignore close requests if we are not already open
-  if global.guis[gui_id] and global.guis[gui_id].gui.window.visible then
+  if storage.guis[gui_id] and storage.guis[gui_id].gui.window.visible then
     destroy_gui(gui_id)
   end
 end
 
 local function open_or_close_gui(player, always_open)
   local gui_id = "gui-" .. player.name
-  if (not always_open) and global.guis[gui_id] and global.guis[gui_id].gui.window.visible then
+  if (not always_open) and storage.guis[gui_id] and storage.guis[gui_id].gui.window.visible then
     destroy_gui(gui_id)  -- Hide existing gui
   else
     open_gui(player)   -- Create new or show existing gui
@@ -123,14 +123,14 @@ end
 
 -- Close all player GUIs so they can be recreated (for migrations)
 local function kill_all_guis()
-  for gui_id, gui_data in pairs(global.guis) do
+  for gui_id, gui_data in pairs(storage.guis) do
     gui_data.gui.window.destroy()
   end
-  global.guis = {}
+  storage.guis = {}
 end
 
 local function refresh_all_guis()
-  for gui_id, gui_data in pairs(global.guis) do
+  for gui_id, gui_data in pairs(storage.guis) do
     if gui_data.gui.visible then
       toolbar.refresh(gui_id)
     end
