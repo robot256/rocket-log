@@ -21,9 +21,10 @@ end
 
 local function add_event(event, summary)
   if event.contents then
-    for name, count in pairs(event.contents) do
-      summary.items[name] = summary.items[name] or { count = 0, name = name }
-      local data = summary.items[name]
+    for k=1,#event.contents do
+      qualname = event.contents[k].name..":"..event.contents[k].quality
+      summary.items[qualname] = summary.items[qualname] or { count = 0, name = event.contents[k].name, quality=event.contents[k].quality }
+      local data = summary.items[qualname]
       data.count = data.count + count
     end
   end
