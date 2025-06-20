@@ -167,13 +167,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
   -- Launched contents
   local contents_children = {}
   if rocket_data.contents then
-    local sorted_contents = {}
-    for name, count in pairs(rocket_data.contents) do
-      table.insert(sorted_contents, {name=name, count=count})
-    end
-    table.sort(sorted_contents, function(a, b) return a.count > b.count end)
-    for index = 1,#sorted_contents do
-      table.insert(contents_children, sprite_button_type_name_amount("item", sorted_contents[index].name, sorted_contents[index].count, nil, gui_id))
+    for index = 1,#rocket_data.contents do
+      table.insert(contents_children, sprite_button_type_name_amount("item", rocket_data.contents[index].name, rocket_data.contents[index].count, nil, gui_id))
     end
   end
   local contents_flow = {
@@ -189,30 +184,34 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
 end
 
 -- Check if this rocket history record meets the selected filters
-local function matches_filter(result, filters)
-  if result.launch_time < filters.time_period then
+local function matches_filter(entry, filters)
+  if entry.launch_time < filters.time_period then
     return false
   end
 
-  local check_item = filters.item ~= nil
-  local check_origin = filters.origin_index ~= nil
-  local check_target = filters.target_index ~= nil
+  local check_item = (filters.item ~= nil)
+  local check_origin = (filters.origin_index ~= nil)
+  local check_target = (filters.target_index ~= nil)
   local matches_item = not check_item
   local matches_origin = not check_origin
   local matches_target = not check_target
   
-  if check_item then
-    if not matches_item and result.contents then
-      matches_item = result.contents[filters.item]
-    end
-  end
-  
   if check_origin then
-    matches_origin = (result.origin_zone_id == filters.origin_index)
+    matches_origin = (entry.origin_zone_id == filters.origin_index)
   end
   
   if check_target then
-    matches_target = (result.target_zone_id == filters.target_index)
+    matches_target = (entry.target_zone_id == filters.target_index)
+  end
+  
+  -- Don't bother checking inventory if locations don't match
+  if matches_origin and matches_target and check_item and entry.contents then
+    for k = 1,#entry.contents do
+      if entry.contents[k] == filters.item then
+        matches_item = true
+        break
+      end
+    end
   end
   
   return matches_item and matches_origin and matches_target

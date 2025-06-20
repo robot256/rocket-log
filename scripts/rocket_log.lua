@@ -40,6 +40,8 @@ end
 function OnRocketLaunched(event)
   --game.print("Handling rocket launched event")
   --game.write_file("launchpad_structs.txt", tostring(game.tick).." LAUNCH:\n" .. serpent.block(event), true)
+  local launch_contents = util.table.deepcopy(event.launched_contents)
+  table.sort(launch_contents, function(a, b) return a.count > b.count end)
   local log_data = {
     launch_time = event.tick,
     force_index = game.forces[event.force_name].index,
@@ -49,7 +51,7 @@ function OnRocketLaunched(event)
     origin_zone_name = event.zone_name,
     origin_zone_icon = remote.call("space-exploration", "get_zone_icon", {zone_index = event.zone_index}),
     origin_position = event.launchpad.position,
-    contents = util.table.deepcopy(event.launched_contents),
+    contents = launch_contents,
     target_zone_id = event.destination_zone_index,
     target_zone_name = event.destination_zone_name,
     target_zone_icon = event.destination_zone_index and remote.call("space-exploration", "get_zone_icon", {zone_index = event.destination_zone_index}),
