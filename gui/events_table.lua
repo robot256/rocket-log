@@ -1,5 +1,5 @@
-local gui = require("__flib__.gui-beta")
 local format = require("__flib__.format")
+local flib_gui = require("__flib__.gui")
 local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
@@ -8,9 +8,9 @@ local summary_gui = require("gui/summary")
 local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
   local prototype = nil
   if type == "item" then
-    prototype = game.item_prototypes[name]
+    prototype = prototypes.item[name]
   elseif type == "virtual-signal" then
-    prototype = game.virtual_signal_prototypes[name]
+    prototype = prototypes.virtual_signal[name]
   end
   local sprite = (prototype and (type .. "/" .. name)) or nil
   local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or (type .. "/" .. name), tostring(amount)}
@@ -267,7 +267,7 @@ local function create_events_table(gui_id)
 
   table.sort(histories, function(a, b) return a.launch_time < b.launch_time end)
   
-  local filter_guis = rocket_log_gui.gui.filter
+  local filter_guis = rocket_log_gui.filter_guis
   
   local origin_index
   local target_index
@@ -295,13 +295,12 @@ local function create_events_table(gui_id)
   local summary
   local count
   local children_guis, summary, count = create_result_guis(histories, filters, events_columns, gui_id)
-  local tabs = rocket_log_gui.gui.tabs
-  tabs.events_contents.clear()
-  tabs.summary_contents.clear()
+  rocket_log_gui.events_contents.clear()
+  rocket_log_gui.summary_contents.clear()
 
   local summary_children = summary_gui.create_gui(summary, gui_id)
   
-  gui.build(tabs.summary_contents, {
+  flib_gui.add(rocket_log_gui.summary_contents, {
     {
       type = "scroll-pane",
       style = "flib_naked_scroll_pane_no_padding",
@@ -320,7 +319,7 @@ local function create_events_table(gui_id)
   
   filter_guis.stats.caption = {"rocket-log.display-stats",count,#storage.history}
 
-  return gui.build(tabs.events_contents, {
+  return flib_gui.add(rocket_log_gui.events_contents, {
     {
       type = "scroll-pane",
       style = "flib_naked_scroll_pane_no_padding",

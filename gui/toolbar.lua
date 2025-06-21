@@ -22,7 +22,7 @@ local rocket_log = require("scripts/rocket_log")
 local function update_filters(gui_id)
   -- Update the dropdown list options
   local rocket_log_gui = storage.guis[gui_id]
-  local filter_guis = rocket_log_gui.gui.filter
+  local filter_guis = rocket_log_gui.filter_guis
   local force_index = rocket_log_gui.player.force.index
   
   -- Make list of surfaces to allow in selection boxes
@@ -101,7 +101,7 @@ end
 -- Assign the origin filter to target, and target filter to origin, if possible
 local function swap_filters(gui_id)
   local rocket_log_gui = storage.guis[gui_id]
-  local filter_guis = rocket_log_gui.gui.filter
+  local filter_guis = rocket_log_gui.filter_guis
   
   local old_origin = filter_guis.origin_list.get_item(filter_guis.origin_list.selected_index)
   local old_target = filter_guis.target_list.get_item(filter_guis.target_list.selected_index)
@@ -129,16 +129,17 @@ local function swap_filters(gui_id)
 end
 
 local function refresh(gui_id)
-  local filter_guis = storage.guis[gui_id].gui.filter
-  filter_guis.item.tooltip = (filter_guis.item.elem_value and game.item_prototypes[filter_guis.item.elem_value] and 
-                                                    game.item_prototypes[filter_guis.item.elem_value].localised_name) or ""
+  log(serpent.line(storage.guis[gui_id].gui.children_names))
+  local filter_guis = storage.guis[gui_id].filter_guis
+  filter_guis.item.tooltip = (filter_guis.item.elem_value and prototypes.item[filter_guis.item.elem_value] and 
+                                                    prototypes.item[filter_guis.item.elem_value].localised_name) or ""
   update_filters(gui_id)
   events_table.create_events_table(gui_id)
 end
 
 local function handle_action(action, event)
   local gui_id = action.gui_id
-  local filter_guis = storage.guis[gui_id].gui.filter
+  local filter_guis = storage.guis[gui_id].filter_guis
   
   if action.action == "filter" then
     if action.filter == "item" and game.item_prototypes[action.value] then
@@ -186,10 +187,12 @@ local function create_toolbar(gui_id)
   return {
     type = "flow",
     direction = "vertical",
+    name = "toolbar",
     children = {
       {
         type = "flow",
         direction = "horizontal",
+        name = "row1",
         children = {
           {
             type = "sprite",
@@ -197,10 +200,10 @@ local function create_toolbar(gui_id)
           },
           {
             type = "drop-down",
+            name = "filter_time_period",
             items = time_filter.time_period_items,
             selected_index = time_filter.default_index,
             tooltip = { "rocket-log.filter-time-period-label" },
-            ref = { "filter", "time_period" },
             actions = {
               on_selection_state_changed = { type = "toolbar", action = "refresh", gui_id = gui_id }
             }
@@ -216,14 +219,15 @@ local function create_toolbar(gui_id)
           },
           {
             type = "label",
-            caption = "test",
-            ref = {"filter","stats"}
+            name = "filter_stats",
+            caption = "test"
           }
         }
       },
       {
         type = "flow",
         direction = "horizontal",
+        name = "row2",
         children = {
           {
             type = "sprite",
@@ -232,7 +236,7 @@ local function create_toolbar(gui_id)
           },
           {
             type = "drop-down",
-            ref = { "filter", "origin_list" },
+            name = "filter_origin_list",
             items = {{"rocket-log.filter-zone-select-none"}},
             selected_index = 1,
             actions = {
@@ -250,12 +254,12 @@ local function create_toolbar(gui_id)
           },
           {
             type = "sprite",
-            sprite = "entity/se-rocket-landing-pad",
+            sprite = "entity/cargo-landing-pad",
             tooltip = { "rocket-log.filter-target-label" },
           },
           {
             type = "drop-down",
-            ref = { "filter", "target_list" },
+            name = "filter_target_list",
             items = {{"rocket-log.filter-zone-select-none"}},
             selected_index = 1,
             actions = {
@@ -270,7 +274,7 @@ local function create_toolbar(gui_id)
           {
             type = "choose-elem-button",
             elem_type = "item",
-            ref = { "filter", "item" },
+            name = "filter_item",
             actions = {
               on_elem_changed = {
                   type = "toolbar", action = "refresh", gui_id = gui_id

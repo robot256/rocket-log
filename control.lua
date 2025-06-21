@@ -1,10 +1,12 @@
-local events = require("__flib__.event")
+require("gui/handlers")
 
-rocket_log_gui = require("gui/main_gui")
+main_gui = require("gui/main_gui")
 rocket_log = require("scripts/rocket_log")
 rocket_gui_button = require("gui/mod_gui_button")
 
-events.on_init(function()
+local flib_gui = require("__flib__.gui")
+
+script.on_init(function()
   storage.guis = {}
   storage.history = {}
   init_events()
@@ -15,11 +17,11 @@ events.on_init(function()
   storage.max_size = settings.global["rocket-log-retention-depth"].value
 end)
 
-events.on_load(init_events)
+script.on_load(init_events)
 
-events.on_configuration_changed(function()
+script.on_configuration_changed(function()
   init_events()
-  rocket_log_gui.kill_all_guis()
+  main_gui.kill_all_guis()
   -- Make sure everybody has the right GUI button after an update
   for _, player in pairs(game.players) do
     rocket_gui_button.add_mod_gui_button(player)
@@ -29,40 +31,41 @@ events.on_configuration_changed(function()
   rocket_log.clear_excess_all()
 end)
 
-events.register("rocket-log-open", function(event)
-	rocket_log_gui.open_or_close_gui(game.players[event.player_index])
+script.on_event("rocket-log-open", function(event)
+	main_gui.open_or_close_gui(game.players[event.player_index])
 end)
 
-events.on_gui_closed(function(event)
+script.on_event(defines.events.on_gui_closed, function(event)
   local player = game.players[event.player_index]
   -- Close ourselves if any custom window is closed.
   if event.gui_type == defines.gui_type.custom then
-    rocket_log_gui.close(player)
+    main_gui.close(player)
   end
 end)
 
-events.on_gui_opened(function(event)
+script.on_event(defines.events.on_gui_opened, function(event)
   local player = game.players[event.player_index]
   -- Try to close ourselves if another window is opened.
   if event.gui_type ~= defines.gui_type.custom then
-    rocket_log_gui.close(player)
+    main_gui.close(player)
   end
 end)
 
 
 -- Check to add or remove button when player changes setting
-events.on_runtime_mod_setting_changed( function(event)
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   if event.setting == "rocket-log-mod-button" then
     if event.player_index and game.players[event.player_index] then
-      rocket_log_gui.add_mod_gui_button(game.players[event.player_index])
+      main_gui.add_mod_gui_button(game.players[event.player_index])
     end
   elseif event.setting == "rocket-log-retention-depth" then
     storage.max_size = settings.global["rocket-log-retention-depth"].value
     rocket_log.clear_excess_all()
-    rocket_log_gui.refresh_all_guis()
+    main_gui.refresh_all_guis()
   end
 end)
 
+flib_gui.handle_events()
 
 ------------------------------------------------------------------------------------
 --                    FIND LOCAL VARIABLES THAT ARE USED GLOBALLY                 --

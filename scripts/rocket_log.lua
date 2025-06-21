@@ -1,4 +1,3 @@
-local events = require("__flib__.event")
 local tables = require("__flib__.table")
 local util = require("util")
 
@@ -94,9 +93,9 @@ end
 
 function init_events()
   local rocket_event = remote.call("space-exploration", "get_on_cargo_rocket_launched_event")
-  events.register(rocket_event, OnRocketLaunched)
+  script.on_event(rocket_event, OnRocketLaunched)
   local crash_event = remote.call("space-exploration", "get_on_cargo_rocket_padless_event")
-  events.register(crash_event, OnRocketCrashed)
+  script.on_event(crash_event, OnRocketCrashed)
 end
 
 return {

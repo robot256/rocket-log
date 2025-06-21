@@ -1,5 +1,6 @@
+local flib_gui = require("__flib__.gui")
 local mod_gui = require("__core__.lualib.mod-gui")
-local events = require("__flib__.event")
+local gui_handlers = require("gui/handlers")
 
 local UNLOCK_TECH_NAME = "se-rocket-launch-pad"
 
@@ -32,25 +33,19 @@ local function add_mod_gui_button(player)
     name = "rocket_log",
     style = "slot_button",
     sprite = "rocket-log-gui-button",
-    tags = {
-      [script.mod_name] = {
-        flib = {
-          on_click = { type = "generic", action = "open-rocket-log" }
-        }
-      }
-    },
+    tags = flib_gui.format_handlers({ [defines.events.on_gui_click] = gui_handlers.open_rocket_log }),
     tooltip = { "rocket-log.mod-gui-tooltip" }
   }
 end
 
 -- Check to add button when new players join
-events.on_player_joined_game( function(event)
+script.on_event(defines.events.on_player_joined_game, function(event)
   local player = game.players[event.player_index]
   add_mod_gui_button(player)
 end)
 
 -- Check to add button when technology researched
-events.on_research_finished( function(event)
+script.on_event(defines.events.on_research_finished, function(event)
   if event.research.name == UNLOCK_TECH_NAME then
     for _, player in pairs(event.research.force.players) do
       add_mod_gui_button(player)
@@ -59,7 +54,7 @@ events.on_research_finished( function(event)
 end)
 
 -- Check to remove button when technology unresearched
-events.on_research_reversed( function(event)
+script.on_event(defines.events.on_research_reversed, function(event)
   if event.research.name == UNLOCK_TECH_NAME then
     for _, player in pairs(event.research.force.players) do
       add_mod_gui_button(player)
