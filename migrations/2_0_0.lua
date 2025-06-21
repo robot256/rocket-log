@@ -8,3 +8,5 @@ for index=1,#storage.history do
   table.sort(new_contents, function(a, b) return a.count > b.count end)
   storage.history[index].contents = new_contents
 end
+
+-- TODO: Migrate landing pad references to new entities that are not at the same position as the old ones

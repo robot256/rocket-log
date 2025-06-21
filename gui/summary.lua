@@ -22,10 +22,10 @@ end
 local function add_event(event, summary)
   if event.contents then
     for k=1,#event.contents do
-      qualname = event.contents[k].name..":"..event.contents[k].quality
+      local qualname = event.contents[k].name..":"..event.contents[k].quality
       summary.items[qualname] = summary.items[qualname] or { count = 0, name = event.contents[k].name, quality=event.contents[k].quality }
       local data = summary.items[qualname]
-      data.count = data.count + count
+      data.count = data.count + event.contents[k].count
     end
   end
 

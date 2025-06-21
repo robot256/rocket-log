@@ -142,7 +142,7 @@ local function handle_action(action, event)
   local filter_guis = storage.guis[gui_id].filter_guis
   
   if action.action == "filter" then
-    if action.filter == "item" and game.item_prototypes[action.value] then
+    if action.filter == "item" and prototypes.item[action.value] then
       filter_guis.item.elem_value = action.value
       refresh(gui_id)
     elseif action.filter == "origin" then
