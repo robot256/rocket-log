@@ -16,6 +16,7 @@ local function add_mod_gui_button(player)
     for _,n in pairs(flow.children_names) do
       if n == "rocket_log" then
         flow.rocket_log.destroy()
+        log("Removed rocket log mod gui button from "..player.name)
         break
       end
     end
@@ -24,18 +25,35 @@ local function add_mod_gui_button(player)
   
   -- Button already exists
   if flow.rocket_log then
+    log("Left in place rocket log mod gui button from "..player.name)
     return
   end
   
   -- Add button
-  flow.add {
-    type = "sprite-button",
-    name = "rocket_log",
-    style = "slot_button",
-    sprite = "rocket-log-gui-button",
-    tags = flib_gui.format_handlers({ [defines.events.on_gui_click] = gui_handlers.open_rocket_log }),
-    tooltip = { "rocket-log.mod-gui-tooltip" }
-  }
+  flib_gui.add(flow, 
+    {
+      type = "sprite-button",
+      name = "rocket_log",
+      style = "slot_button",
+      sprite = "rocket-log-gui-button",
+      handler = gui_handlers.open_rocket_log,
+      tooltip = { "rocket-log.mod-gui-tooltip" }
+    }
+  )
+  log("Added rocket log mod gui button to "..player.name)
+end
+
+local function destroy_all_mod_gui_buttons()
+  for _,player in pairs(game.players) do
+    local flow = mod_gui.get_button_flow(player)
+    for _,n in pairs(flow.children_names) do
+      if n == "rocket_log" then
+        flow.rocket_log.destroy()
+        log("Removed rocket log mod gui button from "..player.name)
+        break
+      end
+    end
+  end
 end
 
 -- Check to add button when new players join
@@ -63,5 +81,6 @@ script.on_event(defines.events.on_research_reversed, function(event)
 end)
 
 return {
-    add_mod_gui_button = add_mod_gui_button
+    add_mod_gui_button = add_mod_gui_button,
+    destroy_all_mod_gui_buttons = destroy_all_mod_gui_buttons
 }

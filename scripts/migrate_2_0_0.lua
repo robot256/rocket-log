@@ -1,3 +1,5 @@
+local rocket_gui_button = require("gui/mod_gui_button")
+
 -- Migrate landing pad references to new entities that are not at the same position as the old ones
 local function landingpad_hash(entry)
   return tostring(entry.target_zone_id)..":"..entry.landingpad_name..":"..tostring(entry.target_position.x)..","..tostring(entry.target_position.y)
@@ -40,4 +42,8 @@ function migrate_landingpads()
 
   log("Migrated "..#storage.history.." rocket log history entries for the following landingpads:")
   log(serpent.block(landingpad_cache))
+
+  -- Also destroy all mod gui buttons so it can be recreated with the new handler system
+  rocket_gui_button.destroy_all_mod_gui_buttons()
+
 end
