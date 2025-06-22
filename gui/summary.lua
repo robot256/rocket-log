@@ -100,7 +100,7 @@ local function add_event(event, summary)
             position = event.target_position,
             count = 0
           }
-        if event.landingpad.valid then
+        if event.landingpad and event.landingpad.valid then
           landingpad_summary.entity = event.landingpad
           landingpad_summary.icon = "rocket-log-landingpad-gps"
           landingpad_summary.tooltip = {"rocket-log.summary-landingpad-tooltip",

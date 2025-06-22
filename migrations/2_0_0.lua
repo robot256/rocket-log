@@ -1,12 +1,13 @@
 -- Migrate the old get_contents format to the new get_contents format.
+log("Migrating Rocket Log item contents data format. This might take a while")
 
-for index=1,#storage.history do
+for _,entry in pairs(storage.history) do
   local new_contents = {}
-  for name,count in pairs(storage.history[index].contents) do
+  for name,count in pairs(entry.contents) do
     table.insert(new_contents, {name=name, count=count, quality="normal"})
   end
   table.sort(new_contents, function(a, b) return a.count > b.count end)
-  storage.history[index].contents = new_contents
+  entry.contents = new_contents
 end
 
--- TODO: Migrate landing pad references to new entities that are not at the same position as the old ones
+log("Migrated contents of "..#storage.history.." rocket log history entries.")

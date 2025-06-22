@@ -1,4 +1,5 @@
 require("gui/handlers")
+require("scripts/migrate_2_0_0")
 
 main_gui = require("gui/main_gui")
 rocket_log = require("scripts/rocket_log")
@@ -19,7 +20,7 @@ end)
 
 script.on_load(init_events)
 
-script.on_configuration_changed(function()
+script.on_configuration_changed(function(event)
   init_events()
   main_gui.kill_all_guis()
   -- Make sure everybody has the right GUI button after an update
@@ -29,6 +30,10 @@ script.on_configuration_changed(function()
   -- Make sure the current setting of retention depth is respected
   storage.max_size = settings.global["rocket-log-retention-depth"].value
   rocket_log.clear_excess_all()
+  -- Migrate landing pad entity references after Factorio 2.0 update
+  if event.old_version and string.sub(event.old_version,1,2) == "1." then
+    migrate_landingpads()
+  end
 end)
 
 script.on_event("rocket-log-open", function(event)
