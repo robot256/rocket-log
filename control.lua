@@ -20,7 +20,8 @@ end)
 
 script.on_load(init_events)
 
-script.on_configuration_changed(function(event)
+
+local function config_changed(event)
   init_events()
   main_gui.kill_all_guis()
   -- Make sure everybody has the right GUI button after an update
@@ -34,7 +35,8 @@ script.on_configuration_changed(function(event)
   if event.old_version and string.sub(event.old_version,1,2) == "1." then
     migrate_landingpads()
   end
-end)
+end
+script.on_configuration_changed(config_changed)
 
 script.on_event("rocket-log-open", function(event)
 	main_gui.open_or_close_gui(game.players[event.player_index])
@@ -71,6 +73,13 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 end)
 
 flib_gui.handle_events()
+
+
+function reset_guis(params)
+  local cmd = params.parameter
+  main_gui.kill_all_guis()
+end
+commands.add_command("rocketlog", "Usage: ad-debug [on | off | init]", reset_guis)
 
 ------------------------------------------------------------------------------------
 --                    FIND LOCAL VARIABLES THAT ARE USED GLOBALLY                 --

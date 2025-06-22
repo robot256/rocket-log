@@ -207,7 +207,7 @@ local function matches_filter(entry, filters)
   -- Don't bother checking inventory if locations don't match
   if matches_origin and matches_target and check_item and entry.contents then
     for k = 1,#entry.contents do
-      if entry.contents[k] == filters.item then
+      if entry.contents[k].name == filters.item then
         matches_item = true
         break
       end

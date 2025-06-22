@@ -1,6 +1,7 @@
 local events_table = require("gui/events_table")
 local time_filter = require("scripts/filter-time")
 local rocket_log = require("scripts/rocket_log")
+local gui_handlers = require("gui/handlers")
 
 -- Navigate recursively to find the star system this zone is in
 --local get_star_name(zone)
@@ -129,12 +130,31 @@ local function swap_filters(gui_id)
 end
 
 local function refresh(gui_id)
-  log(serpent.line(storage.guis[gui_id].gui.children_names))
+  --log(serpent.line(storage.guis[gui_id].gui.children_names))
   local filter_guis = storage.guis[gui_id].filter_guis
   filter_guis.item.tooltip = (filter_guis.item.elem_value and prototypes.item[filter_guis.item.elem_value] and 
                                                     prototypes.item[filter_guis.item.elem_value].localised_name) or ""
   update_filters(gui_id)
   events_table.create_events_table(gui_id)
+end
+
+function gui_handlers.refresh(event)
+  refresh(event.element.tags.gui_id)
+end
+
+function gui_handlers.swap_filters(event)
+  local gui_id = event.element.tags.gui_id
+  swap_filters(gui_id)
+  refresh(gui_id)
+end
+
+function gui_handlers.clear_filters(event)
+  local gui_id = event.element.tags.gui_id
+  local filter_guis = storage.guis[gui_id].filter_guis
+  filter_guis.origin_list.selected_index = 1
+  filter_guis.target_list.selected_index = 1
+  filter_guis.item.elem_value = nil
+  refresh(gui_id)
 end
 
 local function handle_action(action, event)
@@ -167,18 +187,7 @@ local function handle_action(action, event)
       refresh(gui_id)
     end
   
-  elseif action.action == "swap-filters" then
-    swap_filters(gui_id)
-    refresh(gui_id)
-    
-  elseif action.action == "clear-filter" then
-    filter_guis.origin_list.selected_index = 1
-    filter_guis.target_list.selected_index = 1
-    filter_guis.item.elem_value = nil
-    refresh(gui_id)
-    
-  elseif action.action == "refresh" then
-    refresh(gui_id)
+   
   end
 end
 
@@ -204,18 +213,16 @@ local function create_toolbar(gui_id)
             items = time_filter.time_period_items,
             selected_index = time_filter.default_index,
             tooltip = { "rocket-log.filter-time-period-label" },
-            actions = {
-              on_selection_state_changed = { type = "toolbar", action = "refresh", gui_id = gui_id }
-            }
+            handler = gui_handlers.refresh,
+            tags = {gui_id = gui_id}
           },
           {
             type = "sprite-button",
             sprite = "utility/refresh",
             style = "item_and_count_select_confirm",
             tooltip = { "rocket-log.refresh" },
-            actions = {
-              on_click = { type = "toolbar", action = "refresh", gui_id = gui_id }
-            }
+            handler = gui_handlers.refresh,
+            tags = {gui_id = gui_id}
           },
           {
             type = "label",
@@ -239,18 +246,16 @@ local function create_toolbar(gui_id)
             name = "filter_origin_list",
             items = {{"rocket-log.filter-zone-select-none"}},
             selected_index = 1,
-            actions = {
-              on_selection_state_changed = { type = "toolbar", action = "refresh", gui_id = gui_id }
-            }
+            handler = gui_handlers.refresh,
+            tags = {gui_id = gui_id}
           },
           {
             type = "sprite-button",
             sprite = "rocket-log-swap",
             style = "item_and_count_select_confirm",
             tooltip = { "rocket-log.swap-filters" },
-            actions = {
-              on_click = { type = "toolbar", action = "swap-filters", gui_id = gui_id }
-            }
+            handler = gui_handlers.swap_filters,
+            tags = {gui_id = gui_id}
           },
           {
             type = "sprite",
@@ -262,9 +267,8 @@ local function create_toolbar(gui_id)
             name = "filter_target_list",
             items = {{"rocket-log.filter-zone-select-none"}},
             selected_index = 1,
-            actions = {
-              on_selection_state_changed = { type = "toolbar", action = "refresh", gui_id = gui_id }
-            }
+            handler = gui_handlers.refresh,
+            tags = {gui_id = gui_id}
           },
           {
             type = "sprite",
@@ -275,11 +279,8 @@ local function create_toolbar(gui_id)
             type = "choose-elem-button",
             elem_type = "item",
             name = "filter_item",
-            actions = {
-              on_elem_changed = {
-                  type = "toolbar", action = "refresh", gui_id = gui_id
-              }
-            }
+            handler = gui_handlers.refresh,
+            tags = {gui_id = gui_id}
           },
           {
             type = "sprite-button",
@@ -287,9 +288,8 @@ local function create_toolbar(gui_id)
             hovered_sprite = "se-search-close-black",
             clicked_sprite="se-search-close-black",
             tooltip = { "rocket-log.filter-clear" },
-            actions = {
-              on_click = { type = "toolbar", action = "clear-filter", gui_id = gui_id }
-            }
+            handler = gui_handlers.clear_filters,
+            tags = {gui_id = gui_id}
           },
         }
       }
