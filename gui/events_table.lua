@@ -3,25 +3,25 @@ local flib_gui = require("__flib__.gui")
 local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
+local gui_handlers = require("gui/handlers")
 
 -- Make a button for this item and quantity
-local function sprite_button_type_name_amount(type, name, amount, color, gui_id)
+local function sprite_button_type_name_amount(item_type, name, amount, color, gui_id)
   local prototype = nil
-  if type == "item" then
+  if item_type == "item" then
     prototype = prototypes.item[name]
-  elseif type == "virtual-signal" then
+  elseif item_type == "virtual-signal" then
     prototype = prototypes.virtual_signal[name]
   end
-  local sprite = (prototype and (type .. "/" .. name)) or nil
-  local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or (type .. "/" .. name), tostring(amount)}
+  local sprite = (prototype and (item_type .. "/" .. name)) or nil
+  local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or (item_type .. "/" .. name), tostring(amount)}
   return {
     type = "sprite-button",
     style = color and "flib_slot_button_" .. color or "flib_slot_button_default",
     sprite = sprite,
     number = amount,
-    actions = {
-      on_click = { type = "toolbar", action = "filter", filter = type, value = name, gui_id = gui_id }
-    },
+    handler = gui_handlers.set_filter_item,
+    tags = {filter = item_type, value = name, gui_id = gui_id},
     tooltip = tooltip
   }
 end
@@ -47,12 +47,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
         type = "sprite-button",
         sprite = "rocket-log-launchpad-gps",
         tooltip = {"rocket-log.launchpad-tooltip", rocket_data.origin_zone_name, tostring(rocket_data.launchpad_id), {"control-keys.mouse-button-2-alt-1"}},
-        actions = {
-          on_click = { type = "table", action = "container-gui", 
-              zone_name = rocket_data.origin_zone_name,
-              position = rocket_data.origin_position
-          },
-        }
+        handler = gui_handlers.view_position,
+        tags = {action = "container-gui", zone_name = rocket_data.origin_zone_name, position = rocket_data.origin_position}
       }
     )
   else
@@ -62,12 +58,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
         type = "sprite-button",
         sprite = "rocket-log-launchpad-missing",
         tooltip = {"rocket-log.missing-launchpad", tostring(rocket_data.launchpad_id)},
-        actions = {
-          on_click = { type = "table", action = "remote-view", 
-              zone_name = rocket_data.origin_zone_name,
-              position = rocket_data.origin_position
-          },
-        }
+        handler = gui_handlers.view_position,
+        tags = {action = "remote-view", zone_name = rocket_data.origin_zone_name, position = rocket_data.origin_position}
       }
     )
   end
@@ -79,9 +71,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
       --tooltip = {"rocket-log.origin-tooltip", rocket_data.origin_zone_name},
       style = "frame_button",
       style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-      actions = {
-        on_click = { type = "toolbar", action = "filter", filter = "origin", value = rocket_data.origin_zone_name, gui_id = gui_id }
-      }
+      handler = gui_handlers.set_filter_origin,
+      tags = {origin=rocket_data.origin_zone_name, gui_id=gui_id}
     }
   )
   local origin_flow = {
@@ -98,9 +89,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
       --tooltip = {"rocket-log.target-tooltip", rocket_data.target_zone_name},
       style = "frame_button",
       style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-      actions = {
-        on_click = { type = "toolbar", action = "filter", filter = "target", value = rocket_data.target_zone_name, gui_id = gui_id }
-      }
+      handler = gui_handlers.set_filter_target,
+      tags = {target=rocket_data.target_zone_name, gui_id=gui_id}
     }
   }
 
@@ -111,36 +101,24 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
         type = "sprite-button",
         sprite = "rocket-log-rocket-crashed",
         tooltip = {"rocket-log.rocket-crashed", rocket_data.landingpad_name},
-        actions = {
-            on_click = { type = "table", action = "remote-view",
-                zone_name = rocket_data.target_zone_name,
-                position = rocket_data.target_position
-            },
-        }
+        handler = gui_handlers.view_position,
+        tags = {action = "remote-view", zone_name = rocket_data.target_zone_name, position = rocket_data.target_position}
       })
     elseif rocket_data.landingpad and rocket_data.landingpad.valid then
       table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "rocket-log-landingpad-gps",
         tooltip = {"rocket-log.landingpad-tooltip", rocket_data.landingpad_name, {"control-keys.mouse-button-2-alt-1"}},
-        actions = {
-            on_click = { type = "table", action = "container-gui",
-                zone_name = rocket_data.target_zone_name,
-                position = rocket_data.landingpad.position
-            },
-        }
+        handler = gui_handlers.view_position,
+        tags = {action = "container-gui", zone_name = rocket_data.target_zone_name, position = rocket_data.target_position}
       })
     else
       table.insert(target_children, 1, {
         type = "sprite-button",
         sprite = "rocket-log-landingpad-missing",
         tooltip = {"rocket-log.missing-landingpad", rocket_data.landingpad_name},
-        actions = {
-            on_click = { type = "table", action = "remote-view",
-                zone_name = rocket_data.target_zone_name,
-                position = rocket_data.target_position
-            },
-        }
+        handler = gui_handlers.view_position,
+        tags = {action = "remote-view", zone_name = rocket_data.target_zone_name, position = rocket_data.target_position}
       })
     end
   else
@@ -150,12 +128,8 @@ local function events_row(rocket_data, children, gui_id, relative_time_start)
       hovered_sprite = "rocket-log-crosshairs-gps",
       clicked_sprite = "rocket-log-crosshairs-gps",
       tooltip = {"rocket-log.no-landingpad"},
-      actions = {
-          on_click = { type = "table", action = "remote-view",
-              zone_name = rocket_data.target_zone_name,
-              position = rocket_data.target_position
-          },
-      }
+      handler = gui_handlers.view_position,
+      tags = {action = "remote-view", zone_name = rocket_data.target_zone_name, position = rocket_data.target_position}
     })
   end
   local target_flow = {
@@ -304,7 +278,7 @@ local function create_events_table(gui_id)
     {
       type = "scroll-pane",
       style = "flib_naked_scroll_pane_no_padding",
-      ref = { "scroll_pane" },
+      name = "scroll_pane",
       vertical_scroll_policy = "always",
       style_mods = {width = 1000, height = 600, padding = 6},
       children = {
@@ -329,7 +303,7 @@ local function create_events_table(gui_id)
       children = {
         {
           type = "table",
-          ref = { "events_table" },
+          name = "events_table",
           column_count = #events_columns,
           draw_vertical_lines = true,
           draw_horizontal_line_after_headers = true,

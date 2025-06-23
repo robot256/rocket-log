@@ -164,31 +164,31 @@ function gui_handlers.open_rocket_log(event)
 end
 
 -- Handle actions when clicking on the launch and landing pad buttons
-local function handle_events_action(action, event)
+function gui_handlers.view_position(event)
   local player = event.player_index and game.players[event.player_index]
+  local action = event.element.tags.action
+  local zone_name = event.element.tags.zone_name
+  local position = event.element.tags.position
   --game.print(tostring(game.tick)..tostring(player.opened))
   
-  if player and (action.action == "remote-view" or action.action == "container-gui") then
-    if remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
-      --game.print(tostring(game.tick).." closing rocketlog gui because remote view")
-      close_gui(player)  -- Must close the GUI before entering remote view for the first time, or the controller becomes disconnected.
-      remote.call("space-exploration", "remote_view_start", {player=player, zone_name=action.zone_name, position=action.position, location_name=action.label, freeze_history=true})
-      
-      if action.action == "container-gui" and event.button == defines.mouse_button_type.right then
-        local surface = remote.call("space-exploration", "zone_get_surface", {zone_index =  remote.call("space-exploration", "get_zone_from_name", {zone_name = action.zone_name}).index})
-        if surface and surface.valid then
-          local container = surface.find_entities_filtered{type="container", position=action.position, limit=1}
-          if container and container[1] and container[1].valid then
-            --game.print(tostring(game.tick).." opening launchpad gui")
-            player.opened = container[1]
-          end
+  if player and (action == "remote-view" or action == "container-gui") and
+     remote.call("space-exploration", "remote_view_is_unlocked", {player=player}) then
+    --game.print(tostring(game.tick).." closing rocketlog gui because remote view")
+    close_gui(player)  -- Must close the GUI before entering remote view for the first time, or the controller becomes disconnected.
+    remote.call("space-exploration", "remote_view_start", {player=player, zone_name=zone_name, position=position, freeze_history=true})
+    
+    if action == "container-gui" and event.button == defines.mouse_button_type.right then
+      local surface = remote.call("space-exploration", "zone_get_surface", {zone_index = remote.call("space-exploration", "get_zone_from_name", {zone_name=zone_name}).index})
+      if surface and surface.valid then
+        local container = surface.find_entities_filtered{type={"container","cargo-landing-pad"}, position=position, limit=1}
+        if container and container[1] and container[1].valid then
+          --game.print(tostring(game.tick).." opening launchpad gui")
+          player.opened = container[1]
         end
       end
     end
   end
-  --game.print(tostring(game.tick)..tostring(player.opened))
 end
-
 
 flib_gui.add_handlers(gui_handlers, function(e, handler)
     handler(e)

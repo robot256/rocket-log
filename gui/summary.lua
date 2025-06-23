@@ -1,4 +1,6 @@
 local tables = require("__flib__.table")
+local flib_gui = require("__flib__.gui")
+local gui_handlers = require("gui/handlers")
 
 local function flat_map(tbl, mapper)
   local output = {}
@@ -175,11 +177,11 @@ local function create_gui(summary, gui_id)
           type = "sprite-button",
           sprite = launchpad.icon,
           tooltip = launchpad.tooltip,
-          actions = {
-            on_click = { type = "table", action = launchpad.action,
-              zone_name = launchpad.zone_name,
-              position = launchpad.position
-            }
+          handler = gui_handlers.view_position,
+          tags = {
+            action = launchpad.action,
+            zone_name = launchpad.zone_name,
+            position = launchpad.position
           }
         })
     end
@@ -194,9 +196,8 @@ local function create_gui(summary, gui_id)
         caption = {"rocket-log.origin-label", origin.zone_name, origin.icon},
         style = "frame_button",
         style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-        actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "origin", value = origin.zone_name, gui_id = gui_id }
-        }
+        handler = gui_handlers.set_filter_origin,
+        tags = {origin=origin.zone_name, gui_id=gui_id}
       },
       launchpads = {
         type = "flow",
@@ -229,11 +230,11 @@ local function create_gui(summary, gui_id)
           hovered_sprite = landingpad.hovered_icon,
           clicked_sprite = landingpad.hovered_icon,
           tooltip = landingpad.tooltip,
-          actions = {
-            on_click = { type = "table", action = landingpad.action,
-              zone_name = landingpad.zone_name,
-              position = landingpad.position
-            }
+          handler = gui_handlers.view_position,
+          tags = {
+            action = landingpad.action,
+            zone_name = landingpad.zone_name,
+            position = landingpad.position
           }
         })
     end
@@ -256,9 +257,8 @@ local function create_gui(summary, gui_id)
         caption = {"rocket-log.target-label", target.zone_name, target.icon},
         style = "frame_button",
         style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-        actions = {
-          on_click = { type = "toolbar", action = "filter", filter = "target", value = target.zone_name, gui_id = gui_id }
-        }
+        handler = gui_handlers.set_filter_target,
+        tags = {target=target.zone_name, gui_id=gui_id}
       },
       landingpads = {
         type = "flow",
@@ -277,12 +277,8 @@ local function create_gui(summary, gui_id)
       type = "sprite-button",
       sprite = sprite,
       number = item.loaded,
-      actions = {
-        on_click = {
-          type = "toolbar", action = "filter",
-          filter = "item", value = item.name, gui_id = gui_id
-        }
-      },
+      handler = gui_handlers.set_filter_item,
+      tags = {filter = "item", value = item.name, gui_id = gui_id},
       tooltip = tooltip
     }
   end)

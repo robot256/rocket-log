@@ -157,40 +157,42 @@ function gui_handlers.clear_filters(event)
   refresh(gui_id)
 end
 
-local function handle_action(action, event)
-  local gui_id = action.gui_id
+function gui_handlers.set_filter_item(event)
+  local gui_id = event.element.tags.gui_id
   local filter_guis = storage.guis[gui_id].filter_guis
-  
-  if action.action == "filter" then
-    if action.filter == "item" and prototypes.item[action.value] then
-      filter_guis.item.elem_value = action.value
-      refresh(gui_id)
-    elseif action.filter == "origin" then
-      for i,x in pairs(filter_guis.origin_list.items) do
-        if i > 1 then  -- skip the "none" entry
-          if action.value == string.gsub(x, "^(%[.*%] )", "") then
-            filter_guis.origin_list.selected_index = i
-            break
-          end
-        end
-      end
-      refresh(gui_id)
-    elseif action.filter == "target" then
-      for i,x in pairs(filter_guis.target_list.items) do
-        if i > 1 then  -- skip the "none" entry
-          if action.value == string.gsub(x, "^(%[.*%] )", "") then
-            filter_guis.target_list.selected_index = i
-            break
-          end
-        end
-      end
-      refresh(gui_id)
-    end
-  
-   
-  end
+  filter_guis.item.elem_value = event.element.tags.value
+  refresh(gui_id)
 end
 
+function gui_handlers.set_filter_origin(event)
+  local gui_id = event.element.tags.gui_id
+  local filter_guis = storage.guis[gui_id].filter_guis
+  local origin = event.element.tags.origin
+  for i,x in pairs(filter_guis.origin_list.items) do
+    if i > 1 then  -- skip the "none" entry
+      if origin == string.gsub(x, "^(%[.*%] )", "") then
+        filter_guis.origin_list.selected_index = i
+        break
+      end
+    end
+  end
+  refresh(gui_id)
+end
+
+function gui_handlers.set_filter_target(event)
+  local gui_id = event.element.tags.gui_id
+  local filter_guis = storage.guis[gui_id].filter_guis
+  local target = event.element.tags.target
+  for i,x in pairs(filter_guis.target_list.items) do
+    if i > 1 then  -- skip the "none" entry
+      if target == string.gsub(x, "^(%[.*%] )", "") then
+        filter_guis.target_list.selected_index = i
+        break
+      end
+    end
+  end
+  refresh(gui_id)
+end
 
 local function create_toolbar(gui_id)
   return {
@@ -298,7 +300,6 @@ local function create_toolbar(gui_id)
 end
 
 return {
-  handle_action = handle_action,
   create_toolbar = create_toolbar,
   refresh = refresh
 }
