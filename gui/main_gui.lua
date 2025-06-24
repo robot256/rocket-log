@@ -34,7 +34,7 @@ local function open_gui(player)
       {
         type = "frame",
         direction = "vertical",
-        name = "window",
+        name = "rocket-log-window",
         children = {
           header(gui_id),
           toolbar.create_toolbar(gui_id),
