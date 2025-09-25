@@ -89,7 +89,7 @@ data:extend {
   {
       type = 'custom-input',
       name = 'rocket-log-open',
-      key_sequence = 'CONTROL + Y',
+      key_sequence = '',
       enabled_while_spectating = true,
   },
 }
