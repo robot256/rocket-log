@@ -63,7 +63,7 @@ end)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
   if event.setting == "rocket-log-mod-button" then
     if event.player_index and game.players[event.player_index] then
-      main_gui.add_mod_gui_button(game.players[event.player_index])
+      rocket_gui_button.add_mod_gui_button(game.players[event.player_index])
     end
   elseif event.setting == "rocket-log-retention-depth" then
     storage.max_size = settings.global["rocket-log-retention-depth"].value
