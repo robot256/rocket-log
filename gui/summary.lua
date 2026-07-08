@@ -1,5 +1,3 @@
-local tables = require("__flib__.table")
-local flib_gui = require("__flib__.gui")
 local gui_handlers = require("gui/handlers")
 
 local function flat_map(tbl, mapper)
@@ -139,10 +137,20 @@ local function add_event(event, summary)
 
 end
 
+local function collapse_table(tbl)
+  local output = {}
+  local i = 1
+  for k,v in pairs(tbl) do
+    output[i] = v
+    i = i+1
+  end
+  return output
+end
+
 local function create_gui(summary, gui_id)
-  local origins = tables.filter(summary.origins, function() return true end, true)
-  local targets = tables.filter(summary.targets, function() return true end, true)
-  local items = tables.filter(summary.items, function() return true end, true)
+  local origins = collapse_table(summary.origins)
+  local targets = collapse_table(summary.targets)
+  local items = collapse_table(summary.items)
 
   table.sort(origins, function(a, b) return a.count > b.count end)
   table.sort(targets, function(a, b) return a.count > b.count end)
@@ -167,8 +175,9 @@ local function create_gui(summary, gui_id)
   -- Makes one line for the top ten surfaces origin surface
   -- Line starts with surface count, icon, and name
   -- Then list of top ten launchpads
-  local origins_top
-  local _, origins_top = tables.for_n_of(origins, nil, 10, function(origin)
+  local origins_top = {}
+  for k,origin in pairs(origins) do
+    if k > 10 then break end  -- origins was already made a contiguous array
     local launchpad_children = {}
     for id, launchpad in pairs(origin.launchpads) do
       launchpad.tooltip[4] = tostring(launchpad.count)
@@ -186,29 +195,32 @@ local function create_gui(summary, gui_id)
         })
     end
 
-    return {
-      count = {
-        type = "label",
-        caption = tostring(origin.count)
-      },
-      surface = {
-        type = "button",
-        caption = {"rocket-log.origin-label", origin.zone_name, origin.icon},
-        style = "frame_button",
-        style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-        handler = gui_handlers.set_filter_origin,
-        tags = {origin=origin.zone_name, gui_id=gui_id}
-      },
-      launchpads = {
-        type = "flow",
-        direction = "horizontal",
-        children = launchpad_children
+    table.insert(origins_top, 
+      {
+        count = {
+          type = "label",
+          caption = tostring(origin.count)
+        },
+        surface = {
+          type = "button",
+          caption = {"rocket-log.origin-label", origin.zone_name, origin.icon},
+          style = "frame_button",
+          style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
+          handler = gui_handlers.set_filter_origin,
+          tags = {origin=origin.zone_name, gui_id=gui_id}
+        },
+        launchpads = {
+          type = "flow",
+          direction = "horizontal",
+          children = launchpad_children
+        }
       }
-    }
-  end)
+    )
+  end
 
-  local targets_top
-  local _, targets_top = tables.for_n_of(targets, nil, 10, function(target)
+  local targets_top = {}
+  for k,target in pairs(targets) do
+    if k > 10 then break end  -- targets was already made a contiguous array
     local landingpad_children = {}
     local total_count = 0
     local failed_count = 0
@@ -247,41 +259,46 @@ local function create_gui(summary, gui_id)
       count_caption = {"rocket-log.summary-target-stats-simple", target.count}
     end
 
-    return {
-      count = {
-        type = "label",
-        caption = count_caption
-      },
-      surface = {
-        type = "button",
-        caption = {"rocket-log.target-label", target.zone_name, target.icon},
-        style = "frame_button",
-        style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
-        handler = gui_handlers.set_filter_target,
-        tags = {target=target.zone_name, gui_id=gui_id}
-      },
-      landingpads = {
-        type = "flow",
-        direction = "horizontal",
-        children = landingpad_children
+    table.insert(targets_top, 
+      {
+        count = {
+          type = "label",
+          caption = count_caption
+        },
+        surface = {
+          type = "button",
+          caption = {"rocket-log.target-label", target.zone_name, target.icon},
+          style = "frame_button",
+          style_mods = {font_color = { 1,1,1 }, height=34, minimal_width=50, horizontal_align="left", vertical_align="center", top_margin=4, right_padding=3, left_padding=1},
+          handler = gui_handlers.set_filter_target,
+          tags = {target=target.zone_name, gui_id=gui_id}
+        },
+        landingpads = {
+          type = "flow",
+          direction = "horizontal",
+          children = landingpad_children
+        }
       }
-    }
-  end)
+    )
+  end
 
-  local items_top
-  local _, items_top = tables.for_n_of(items, nil, 60, function(item)
+  local items_top = {}
+  for k,item in pairs(items) do
+    if k > 60 then break end  -- targets was already made a contiguous array
     local prototype = prototypes.item[item.name]
     local sprite = prototype and ("item/" .. item.name) or nil
     local tooltip = {"rocket-log.summary-item-tooltip", (prototype and prototype.localised_name) or ("item/" .. item.name), util.format_number(item.count,true)}
-    return {
-      type = "sprite-button",
-      sprite = sprite,
-      number = item.loaded,
-      handler = gui_handlers.set_filter_item,
-      tags = {filter = "item", value = item.name, gui_id = gui_id},
-      tooltip = tooltip
-    }
-  end)
+    table.insert(items_top, 
+      {
+        type = "sprite-button",
+        sprite = sprite,
+        number = item.loaded,
+        handler = gui_handlers.set_filter_item,
+        tags = {filter = "item", value = item.name, gui_id = gui_id},
+        tooltip = tooltip
+      }
+    )
+  end
 
   local summary_gui_elements = {
     {

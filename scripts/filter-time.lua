@@ -44,7 +44,7 @@ local function ticks(time_period_index)
 end
 
 return {
-    time_period_items = tables.map(time_period_items, function(v) return v.text end),
+    time_period_items = tables.mapped(time_period_items, function(v) return v.text end),
     default_index = time_period_default_index,
     ticks = ticks
 }

@@ -1,4 +1,3 @@
-local tables = require("__flib__.table")
 local util = require("util")
 
 

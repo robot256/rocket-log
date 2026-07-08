@@ -1,6 +1,5 @@
 local format = require("__flib__.format")
 local flib_gui = require("__flib__.gui")
-local trains = require("__flib__.train")
 local time_filter = require("scripts/filter-time")
 local summary_gui = require("gui/summary")
 local gui_handlers = require("gui/handlers")
